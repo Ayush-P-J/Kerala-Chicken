@@ -1,22 +1,27 @@
 import mongoose from "mongoose";
 
-const SupervisorSchema = new mongoose.Schema(
+const farmerSchema = new mongoose.Schema(
   {
-    districtName: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "District",
-      required: true,
-    },
-    supervisorCode: {
+    farmerCode: {
       type: String,
       required: true,
       unique: true,
     },
-    supervisorName: {
+    farmerName: {
       type: String,
       required: true,
     },
-    phoneNumber: {
+    supervisorName: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Supervisor",
+      required: true,
+    },
+    district: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "District",
+      required: false,      
+    },
+    phone: {
       type: String,
       required: true,
     },
@@ -24,15 +29,7 @@ const SupervisorSchema = new mongoose.Schema(
       type: String,
       required: false,
     },
-    drivingLicenseNo: {
-      type: String,
-      required: false,
-    },
-    expiry: {
-      type: Date,
-      required: false,
-    },
-    adharCardNo: {
+    aadhaar: {
       type: String,
       required: false,
     },
@@ -40,15 +37,23 @@ const SupervisorSchema = new mongoose.Schema(
       type: String,
       required: false,
     },
-    accountNo: {
+    accountNumber: {
       type: String,
       required: false,
     },
-    ifscCode: {
+    ifsc: {
       type: String,
       required: false,
     },
     branch: {
+      type: String,
+      required: false,
+    },
+    address: {
+      type: String,
+      required: false,
+    },
+    pincode: {
       type: String,
       required: false,
     },
@@ -61,8 +66,8 @@ const SupervisorSchema = new mongoose.Schema(
       default: true,
     },
   },
-  { timeStamp: true }
+  { timestamps: true }
 );
 
-const Supervisor = mongoose.model("Supervisor", SupervisorSchema);
-export default Supervisor;
+const Farmer = mongoose.model("Farmer", farmerSchema);
+export default Farmer;

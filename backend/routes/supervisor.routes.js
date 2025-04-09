@@ -1,5 +1,5 @@
 import express from 'express'
-import { addSupervisor, editSupervisor, getSupervisor } from '../controllers/supervisor.controller.js'
+import { addSupervisor, deleteSupervisor, editSupervisor, getSupervisor } from '../controllers/supervisor.controller.js'
 
 const router = express.Router()
 
@@ -7,6 +7,7 @@ const router = express.Router()
 router.post('/addSupervisor',addSupervisor)
 router.get('/getSupervisor',getSupervisor)
 router.post('/editSupervisor',editSupervisor)
+router.put('/deleteSupervisor/:id',deleteSupervisor)
 
 
 

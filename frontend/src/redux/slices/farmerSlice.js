@@ -5,12 +5,12 @@ import { toast } from "react-toastify";
 
 const api = axios.create({ baseURL: "http://localhost:4000/api/" });
 
-export const addSupervisor = createAsyncThunk(
-  "supervisor/addSupervisor",
+export const addFarmer = createAsyncThunk(
+  "farmer/addFarmer",
   async (formData, { rejectWithValue }) => {
     try {
-      const data = await api.post("/addSupervisor", formData);
-      toast.success("Supervisor added successfully!", {
+      const { data } = await api.post("/addFarmer", formData);
+      toast.success("Farmer added successfully!", {
         position: "top-right",
         autoClose: 3000,
         hideProgressBar: false,
@@ -19,37 +19,35 @@ export const addSupervisor = createAsyncThunk(
         draggable: true,
         theme: "light",
       });
-      return data.data;
+      return data;
     } catch (error) {
       const { message } = error.response.data;
-
-      toast.error(message || "Failed to add supervisor. Please try again!");
-      console.log(error);
-
+      toast.error(message || "Failed to add farmer. Please try again!");
       return rejectWithValue(errorMessage(error));
     }
   }
 );
 
-export const getSupervisors = createAsyncThunk(
-  "supervisor/getSupervisor",
+export const getFarmers = createAsyncThunk(
+  "farmer/getFarmers",
   async (_, { rejectWithValue }) => {
     try {
-      const response = await api.get("/getSupervisor");
+      const response = await api.get("/getFarmer");
       return response.data.data;
     } catch (error) {
-      toast.error("Failed to get supervisor. Please try again!");
+      const { message } = error.response.data;
+      toast.error(message || "Failed to get farmers. Please try again!");
       return rejectWithValue(errorMessage(error));
     }
   }
 );
 
-export const editSupervisor = createAsyncThunk(
-  "supervisor/editSupervisor",
+export const editFarmer = createAsyncThunk(
+  "farmer/editFarmer",
   async (formData, { rejectWithValue }) => {
     try {
-      const data = await api.post("/editSupervisor", formData);
-      toast.success("Supervisor updated successfully!", {
+      const { data } = await api.post("/editFarmer", formData);
+      toast.success("Farmer updated successfully!", {
         position: "top-right",
         autoClose: 3000,
         hideProgressBar: false,
@@ -58,21 +56,20 @@ export const editSupervisor = createAsyncThunk(
         draggable: true,
         theme: "light",
       });
-      return data.data;
+      return data;
     } catch (error) {
       const { message } = error.response.data;
-
-      toast.error(message || "Failed to update district. Please try again!");
+      toast.error(message || "Failed to update farmer. Please try again!");
       return rejectWithValue(errorMessage(error));
     }
   }
 );
 
-export const deleteSupervisor = createAsyncThunk(
-  "supervisor/deleteSupervisor",
+export const deleteFarmer = createAsyncThunk(
+  "district/deleteDistrict",
   async (id, { rejectWithValue }) => {
     try {
-      const data = await api.put(`/deleteSupervisor/${id}`);
+      const data = await api.put(`/deleteFarmer/${id}`);
       toast.success("Supervisor deleted successfully!", {
         position: "top-right",
         autoClose: 3000,
@@ -84,7 +81,6 @@ export const deleteSupervisor = createAsyncThunk(
       });
       return data.data;
     } catch (error) {
-      console.log(error)
       const { message } = error.response.data;
       toast.error(message || "Failed to delete supervisor. Please try again!");
       return rejectWithValue(errorMessage(error));
@@ -93,79 +89,79 @@ export const deleteSupervisor = createAsyncThunk(
 );
 
 const initialState = {
-  supervisors: [],
+  farmers: [],
   loading: false,
   error: null,
 };
 
-export const supervisorSlice = createSlice({
-  name: "supervisor",
+export const farmerSlice = createSlice({
+  name: "farmer",
   initialState,
   reducers: {},
 
   extraReducers: (builder) => {
     builder
-      .addCase(addSupervisor.pending, (state) => {
+      .addCase(addFarmer.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
-      .addCase(addSupervisor.fulfilled, (state, action) => {
+      .addCase(addFarmer.fulfilled, (state, action) => {
         state.loading = false;
-        state.supervisors.push(action.payload);
+        state.farmers.push(action.payload);
       })
-      .addCase(addSupervisor.rejected, (state, action) => {
+      .addCase(addFarmer.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       })
 
-      .addCase(getSupervisors.pending, (state) => {
+      .addCase(getFarmers.pending, (state) => {
         state.loading = true;
       })
-      .addCase(getSupervisors.fulfilled, (state, action) => {
+      .addCase(getFarmers.fulfilled, (state, action) => {
         state.loading = false;
-        state.supervisors = action.payload;
+        state.farmers = action.payload;
       })
-      .addCase(getSupervisors.rejected, (state, action) => {
+      .addCase(getFarmers.rejected, (state, action) => {
         state.error = action.payload;
       })
 
-      .addCase(editSupervisor.pending, (state) => {
+      .addCase(editFarmer.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
-      .addCase(editSupervisor.fulfilled, (state, action) => {
+      .addCase(editFarmer.fulfilled, (state, action) => {
         state.loading = false;
-        const updatedSupervisor = action.payload;
-        const index = state.supervisors.findIndex(
-          (s) => s._id === updatedSupervisor._id
+        const updatedFarmer = action.payload;
+        const index = state.farmers.findIndex(
+          (f) => f._id === updatedFarmer._id
         );
         if (index !== -1) {
-          state.supervisors[index] = updatedSupervisor;
+          state.farmers[index] = updatedFarmer;
         }
       })
-      .addCase(editSupervisor.rejected, (state, action) => {
-        state.error = action.error.payload;
+      .addCase(editFarmer.rejected, (state, action) => {
+        state.error = action.payload;
       })
 
-      .addCase(deleteSupervisor.pending, (state) => {
+      .addCase(deleteFarmer.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
-      .addCase(deleteSupervisor.fulfilled, (state, action) => {
+      .addCase(deleteFarmer.fulfilled, (state, action) => {
         state.loading = false;
-        const deletedSupervisor = action.payload;
-        const index = state.supervisors.findIndex(
-          (d) => d._id === deletedSupervisor._id
+        const deletedFarmer = action.payload;
+        const index = state.farmers.findIndex(
+          (d) => d._id === deletedFarmer._id
         );
         if (index !== -1) {
-          state.supervisors[index] = deletedSupervisor;
+          state.farmers[index] = deletedFarmer;
         }
       })
-      .addCase(deleteSupervisor.rejected, (state, action) => {
+      .addCase(deleteFarmer.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       });
   },
 });
 
-export default supervisorSlice.reducer;
+export default farmerSlice.reducer;

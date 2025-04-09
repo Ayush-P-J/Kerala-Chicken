@@ -89,6 +89,22 @@ const data = {
         },
       ],
     },
+    {
+      title: "Farmers",
+      url: "#",
+      icon: Contact,
+      isActive: true,
+      items: [
+        {
+          title: "Create",
+          url: "/farmer/create",
+        },
+        {
+          title: "Alter",
+          url: "/farmer/alter",
+        },
+      ],
+    },
     
   ],
   

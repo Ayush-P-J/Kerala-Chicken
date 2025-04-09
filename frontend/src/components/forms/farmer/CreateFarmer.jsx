@@ -12,8 +12,11 @@ import {
 } from "../../ui/form";
 import { Input } from "../../ui/input";
 import { Button } from "@/components/ui/button";
+
+import { farmerSchema } from "@/zodSchema/farmerSchema";
 import { useAppDispatch, useAppSelector } from "@/redux/hooks";
-import { getDistricts } from "@/redux/slices/districtSlice";
+import { addFarmer } from "@/redux/slices/farmerSlice";
+import { getSupervisors } from "@/redux/slices/supervisorSlice";
 import { useEffect, useState } from "react";
 import {
   Select,
@@ -22,48 +25,47 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { supervisorSchema } from "@/zodSchema/supervisorSchema";
-import { addSupervisor } from "@/redux/slices/supervisorSlice";
 
-export const CreateSupervisor = () => {
+export const CreateFarmer = () => {
   const dispatch = useAppDispatch();
-
-  const { loading, districts } = useAppSelector((state) => state.district);
-  const [districtOptions, setDistrictOptions] = useState([]);
+  const { loading, supervisors } = useAppSelector((state) => state.supervisor);
+  const [supervisorOption, setSupervisorOption] = useState([]);
+  const [districtId, setDistrictId] = useState();
 
   useEffect(() => {
-    dispatch(getDistricts());
+    dispatch(getSupervisors());
   }, [dispatch]);
 
   useEffect(() => {
-    if (districts) {
-      setDistrictOptions(districts);
-      console.log(districtOptions);
-      console.log(districts);
+    if (supervisors) {
+      setSupervisorOption(supervisors);
+      console.log(supervisorOption);
+      console.log(supervisors);
     }
-  }, [districts]);
+  }, [supervisors]);
 
   const form = useForm({
-    resolver: zodResolver(supervisorSchema),
+    resolver: zodResolver(farmerSchema),
     defaultValues: {
-      districtName: "",
-      supervisorCode: "",
+      farmerCode: "",
+      farmerName: "",
       supervisorName: "",
-      phoneNumber: "",
+      phone: "",
       email: "",
-      drivingLicenseNo: "",
-      expiry: "",
-      adharCardNo: "",
+      aadhaar: "",
       bankName: "",
-      accountNo: "",
-      ifscCode: "",
+      accountNumber: "",
+      ifsc: "",
       branch: "",
+      address: "",
+      pincode: "",
     },
   });
 
-  const onSubmit = async (formData) => {
+  const onSubmit = async (data) => {
+    const formData = { ...data, district: districtId }
     console.log(formData);
-    dispatch(addSupervisor(formData));
+    dispatch(addFarmer(formData));
     form.reset();
   };
 
@@ -72,26 +74,26 @@ export const CreateSupervisor = () => {
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
           <FormField
-            name="supervisorName"
+            name="farmerCode"
             control={form.control}
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Supervisor Name</FormLabel>
+                <FormLabel>Farmer Code</FormLabel>
                 <FormControl>
-                  <Input {...field} placeholder="Supervisor Name" />
+                  <Input {...field} placeholder="Farmer Code" />
                 </FormControl>
                 <FormMessage />
               </FormItem>
             )}
           />
           <FormField
-            name="supervisorCode"
+            name="farmerName"
             control={form.control}
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Supervisor Code</FormLabel>
+                <FormLabel>Farmer's name</FormLabel>
                 <FormControl>
-                  <Input {...field} placeholder="Supervisor Code" />
+                  <Input {...field} placeholder="Farmer's name" />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -99,11 +101,11 @@ export const CreateSupervisor = () => {
           />
           <FormField
             className={"w-full"}
-            name="districtName"
+            name="supervisorName"
             control={form.control}
             render={({ field }) => (
               <FormItem className="w-full">
-                <FormLabel>District Name</FormLabel>
+                <FormLabel>Supervisor</FormLabel>
                 <Select
                   onValueChange={field.onChange}
                   defaultValue={field.value}
@@ -115,12 +117,15 @@ export const CreateSupervisor = () => {
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent className="w-full">
-                    {districtOptions.map((district, index) => (
+                    {supervisorOption.map((supervisor, index) => (
                       <SelectItem
-                        key={district?._id || index}
-                        value={district?._id}
+                        key={supervisor?._id || index}
+                        value={supervisor?._id}
+                        onClick={() =>{
+                          setDistrictId(supervisor?.districtName._id)}
+                        }
                       >
-                        {district.districtName}
+                        {supervisor?.supervisorName}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -129,15 +134,14 @@ export const CreateSupervisor = () => {
               </FormItem>
             )}
           />
-
           <FormField
-            name="phoneNumber"
+            name="phone"
             control={form.control}
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Phone Number</FormLabel>
+                <FormLabel>Phone</FormLabel>
                 <FormControl>
-                  <Input {...field} placeholder="Phone Number" type="tel" />
+                  <Input {...field} placeholder="Phone Number" />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -148,48 +152,22 @@ export const CreateSupervisor = () => {
             control={form.control}
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Email</FormLabel>
+                <FormLabel>Email ID</FormLabel>
                 <FormControl>
-                  <Input {...field} placeholder="Email" type="email" />
+                  <Input {...field} placeholder="Email ID" type="email" />
                 </FormControl>
                 <FormMessage />
               </FormItem>
             )}
           />
           <FormField
-            name="drivingLicenseNo"
+            name="aadhaar"
             control={form.control}
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Driving License No</FormLabel>
+                <FormLabel>Aadhaar Number</FormLabel>
                 <FormControl>
-                  <Input {...field} placeholder="Driving License No" />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            name="expiry"
-            control={form.control}
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Expiry Date</FormLabel>
-                <FormControl>
-                  <Input {...field} placeholder="Expiry Date" type="date" />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            name="adharCardNo"
-            control={form.control}
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Adhar Card No</FormLabel>
-                <FormControl>
-                  <Input {...field} placeholder="Adhar Card No" />
+                  <Input {...field} placeholder="Aadhaar Number" />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -209,20 +187,20 @@ export const CreateSupervisor = () => {
             )}
           />
           <FormField
-            name="accountNo"
+            name="accountNumber"
             control={form.control}
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Account No</FormLabel>
+                <FormLabel>Account Number</FormLabel>
                 <FormControl>
-                  <Input {...field} placeholder="Account No" />
+                  <Input {...field} placeholder="Account Number" />
                 </FormControl>
                 <FormMessage />
               </FormItem>
             )}
           />
           <FormField
-            name="ifscCode"
+            name="ifsc"
             control={form.control}
             render={({ field }) => (
               <FormItem>
@@ -247,9 +225,36 @@ export const CreateSupervisor = () => {
               </FormItem>
             )}
           />
+          <FormField
+            name="address"
+            control={form.control}
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Address</FormLabel>
+                <FormControl>
+                  <Input {...field} placeholder="Address" />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            name="pincode"
+            control={form.control}
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Pincode</FormLabel>
+                <FormControl>
+                  <Input {...field} placeholder="Pincode" />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
         </div>
+
         <div className="sm:col-span-2 flex gap-5 justify-end">
-          <Button type="submit" className="w-full">
+          <Button type="submit" className={"w-full"}>
             Save
           </Button>
         </div>
@@ -257,5 +262,3 @@ export const CreateSupervisor = () => {
     </Form>
   );
 };
-
-export default CreateSupervisor;

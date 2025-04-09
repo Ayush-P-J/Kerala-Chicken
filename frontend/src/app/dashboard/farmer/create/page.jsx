@@ -12,7 +12,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { CreateDistrict } from "@/components/forms/district/CreateDistrict";
+import { CreateFarmer } from "@/components/forms/farmer/CreateFarmer";
 export default function Layout() {
   return (
     <Card>
@@ -21,7 +21,7 @@ export default function Layout() {
         <CardDescription></CardDescription>
       </CardHeader>
       <CardContent>
-        <CreateDistrict />
+        <CreateFarmer />
       </CardContent>
     </Card>
   );

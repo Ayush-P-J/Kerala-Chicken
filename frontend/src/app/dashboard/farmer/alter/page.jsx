@@ -13,6 +13,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import AlterDistrict from "@/components/forms/district/AlterDistrict";
+import AlterFarmer from "@/components/forms/farmer/AlterFarmer";
 export default function Layout() {
 
   
@@ -24,7 +25,7 @@ export default function Layout() {
         <CardDescription></CardDescription>
       </CardHeader>
       <CardContent>
-        <AlterDistrict />
+        <AlterFarmer />
       </CardContent>
     </Card>
   );

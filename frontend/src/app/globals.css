@@ -1,5 +1,7 @@
 @import "tailwindcss";
 @import "tw-animate-css";
+@import 'react-confirm-alert/src/react-confirm-alert.css';
+
 
 @custom-variant dark (&:is(.dark *));
 
@@ -140,3 +142,5 @@
     @apply bg-background text-foreground;
   }
 }
+
+

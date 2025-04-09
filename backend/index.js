@@ -5,6 +5,7 @@ import cors from 'cors'
 import { connectDB } from './db.js'
 import districtRoute from './routes/district.routes.js'
 import supervisorRoute from './routes/supervisor.routes.js'
+import farmerRoute from './routes/farmer.routes.js'
 
 
 dotenv.config()
@@ -28,6 +29,7 @@ app.get('/', (req, res) => {
 app.use('/api/auth',authRoute)
 app.use('/api/',districtRoute)
 app.use('/api/',supervisorRoute)
+app.use('/api/',farmerRoute)
 
 app.listen(port, () => {
     console.log(`Server running on port: ${port}`)

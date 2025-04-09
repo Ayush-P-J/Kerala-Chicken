@@ -38,35 +38,40 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { districtSchema } from "@/zodSchema/districtSchema";
 import { ToastContainer, toast } from "react-toastify";
-import { editSupervisor, getSupervisors } from "@/redux/slices/supervisorSlice";
+import {
+  deleteSupervisor,
+  editSupervisor,
+  getSupervisors,
+} from "@/redux/slices/supervisorSlice";
 import { supervisorSchema } from "@/zodSchema/supervisorSchema";
-
+import { getFarmers } from "@/redux/slices/farmerSlice";
+import { Pencil, Trash2 } from "lucide-react";
+import Swal from "sweetalert2";
 export default function AlterSupervisor() {
   const dispatch = useAppDispatch();
   const { loading, supervisors } = useAppSelector((state) => state.supervisor);
   const { districts } = useAppSelector((state) => state.district);
-  
+
   const [open, setOpen] = useState(false);
   const [selectedSupervisor, setSelectedSupervisor] = useState(null);
 
   const [districtOptions, setDistrictOptions] = useState([]);
 
-  useEffect(() => {
-    dispatch(getDistricts());
-  }, [dispatch]);
 
-  if (districts) {
-    useEffect(() => {
+
+  useEffect(() => {
+    if (districts.length > 0) {
       setDistrictOptions(districts);
       // console.log(districtOptions);
       // console.log(districts);
-    }, [districts]);
-  }
+    }
+  }, [districts]);
 
   useEffect(() => {
-    dispatch(getSupervisors());
-  }, [dispatch, supervisors]);
-
+    console.log("supervisors")
+      dispatch(getSupervisors());
+    
+  }, [dispatch]);
 
   const form = useForm({
     resolver: zodResolver(supervisorSchema),
@@ -112,6 +117,25 @@ export default function AlterSupervisor() {
   //   console.log("Updated Values:", data);
   //   toast.success("District updated successfully!");
   // };
+
+  const handleDelete = (supervisor) => {
+    Swal.fire({
+      title: "Are you sure?",
+      text: "You won't be able to revert this!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#3085d6",
+      confirmButtonText: "Yes, delete it!",
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        const id = supervisor._id;
+        await dispatch(deleteSupervisor(id)).unwrap()
+        dispatch(getSupervisors());
+      }
+    });
+  };
+
   const onSubmit = async (formData) => {
     if (!selectedSupervisor) return;
 
@@ -119,9 +143,11 @@ export default function AlterSupervisor() {
       ...formData,
       _id: selectedSupervisor._id,
     };
-    dispatch(editSupervisor(updatedSupervisor));
+    await dispatch(editSupervisor(updatedSupervisor)).unwrap();
 
     setOpen(false);
+
+    dispatch(getSupervisors());
   };
 
   return (
@@ -137,23 +163,38 @@ export default function AlterSupervisor() {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {supervisors.map((supervisor, index) => (
-            <TableRow key={supervisor._id || index}>
-              <TableCell>{index + 1}</TableCell>
-              <TableCell>{supervisor.supervisorName}</TableCell>
-              <TableCell>{supervisor.supervisorCode}</TableCell>
-              <TableCell>{supervisor.districtName.districtName}</TableCell>
-              <TableCell>
-                <Button
-                  size="sm"
-                  type="button"
-                  onClick={() => handleEdit(supervisor)}
-                >
-                  Edit
-                </Button>
+          {supervisors.length === 0 ? (
+            <TableRow>
+              <TableCell colSpan={5} className="text-center text-xl py-6">
+                No supervisor found
               </TableCell>
             </TableRow>
-          ))}
+          ) : (
+            supervisors.map((supervisor, index) => (
+              <TableRow key={supervisor._id || index}>
+                <TableCell>{index + 1}</TableCell>
+                <TableCell>{supervisor.supervisorName}</TableCell>
+                <TableCell>{supervisor.supervisorCode}</TableCell>
+                <TableCell>{supervisor.districtName?.districtName}</TableCell>
+                <TableCell>
+                  <Button
+                    size="sm"
+                    type="button"
+                    onClick={() => handleEdit(supervisor)}
+                  >
+                    <Pencil />
+                  </Button>
+                  <Button
+                    size="sm"
+                    type="button"
+                    onClick={() => handleDelete(supervisor)}
+                  >
+                    <Trash2 />
+                  </Button>
+                </TableCell>
+              </TableRow>
+            ))
+          )}
         </TableBody>
       </Table>
 

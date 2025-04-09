@@ -37,8 +37,9 @@ export const getDistricts = createAsyncThunk(
       const response = await api.get("/getDistrict");
       return response.data.data;
     } catch (error) {
+      const {message} = error.response.data
 
-      toast.error("Failed to get districts. Please try again!");
+      toast.error(message || "Failed to get districts. Please try again!");
       return rejectWithValue(errorMessage(error));
     }
   }
@@ -67,6 +68,32 @@ export const editDistrict = createAsyncThunk(
     }
   }
 );
+
+export const deleteDistrict = createAsyncThunk(
+  "district/deleteDistrict",
+  async (id,{rejectWithValue}) => {
+    try {
+      const data = await api.put(`/deleteDistrict/${id}`);
+      toast.success("District deleted successfully!", {
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        theme: "light",
+      });
+      return data.data;
+    } catch (error) {
+      console.log(error)
+
+      const {message} = error.response.data
+      toast.error(message || "Failed to delete district. Please try again!");
+      return rejectWithValue(errorMessage(error));
+
+    }
+  }
+)
 
 const initialState = {
   districts: [],
@@ -122,6 +149,24 @@ export const districtSlice = createSlice({
       .addCase(editDistrict.rejected, (state, action) =>{
         state.error = action.error.payload
       }) 
+
+      .addCase(deleteDistrict.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(deleteDistrict.fulfilled, (state, action) => {
+        state.loading = false;
+        const deletedDistrict = action.payload;
+        const index = state.districts.findIndex(d => d._id === deletedDistrict._id);
+        if (index !== -1) {
+          state.districts[index] = deletedDistrict; 
+        }
+      })
+      .addCase(deleteDistrict.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+      
   },
 });
 

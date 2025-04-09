@@ -20,7 +20,11 @@ import { Input } from "../../ui/input";
 
 import { useEffect, useState } from "react";
 import { useAppDispatch, useAppSelector } from "@/redux/hooks";
-import { editDistrict, getDistricts } from "@/redux/slices/districtSlice";
+import {
+  deleteDistrict,
+  editDistrict,
+  getDistricts,
+} from "@/redux/slices/districtSlice";
 import {
   Dialog,
   DialogContent,
@@ -31,6 +35,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { districtSchema } from "@/zodSchema/districtSchema";
 import { ToastContainer, toast } from "react-toastify";
+import { Pencil, Trash2 } from "lucide-react";
+import Swal from "sweetalert2";
 
 export default function AlterDistrict() {
   const dispatch = useAppDispatch();
@@ -38,9 +44,11 @@ export default function AlterDistrict() {
   const [open, setOpen] = useState(false);
   const [selectedDistrict, setSelectedDistrict] = useState(null);
 
+
   useEffect(() => {
-    dispatch(getDistricts());
-  }, [dispatch, districts]);
+      dispatch(getDistricts());
+    console.log("hai")
+  }, [dispatch]);
 
   const form = useForm({
     resolver: zodResolver(districtSchema),
@@ -61,20 +69,40 @@ export default function AlterDistrict() {
     setOpen(true);
   };
 
-  // const onSubmit = (data) => {
-  //   console.log("Updated Values:", data);
-  //   toast.success("District updated successfully!");
-  // };
+  const handleDelet = (district) => {
+    const id = district._id;
+    dispatch(deleteDistrict(id));
+  };
+  const handleDelete = (district) => {
+    Swal.fire({
+      title: "Are you sure?",
+      text: "You won't be able to revert this!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#3085d6",
+      confirmButtonText: "Yes, delete it!",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        const id = district._id;
+        dispatch(deleteDistrict(id));
+      }
+    });
+  };
+
   const onSubmit = async (formData) => {
-    if (!selectedDistrict) return; 
+    if (!selectedDistrict) return;
 
     const updatedDistrict = {
       ...formData,
       _id: selectedDistrict._id,
     };
-    dispatch(editDistrict(updatedDistrict));
+        await dispatch(editDistrict(updatedDistrict)).unwrap();
+    
 
     setOpen(false);
+    dispatch(getDistricts());
+
   };
 
   return (
@@ -89,22 +117,37 @@ export default function AlterDistrict() {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {districts.map((district, index) => (
-            <TableRow key={district._id || index}>
-              <TableCell>{index + 1}</TableCell>
-              <TableCell>{district.districtName}</TableCell>
-              <TableCell>{district.districtCode}</TableCell>
-              <TableCell>
-                <Button
-                  size="sm"
-                  type="button"
-                  onClick={() => handleEdit(district)}
-                >
-                  Edit
-                </Button>
+          {districts.length === 0 ? (
+            <TableRow>
+              <TableCell colSpan={4} className="text-center text-xl py-6">
+                No district found
               </TableCell>
             </TableRow>
-          ))}
+          ) : (
+            districts.map((district, index) => (
+              <TableRow key={district._id || index}>
+                <TableCell>{index + 1}</TableCell>
+                <TableCell>{district.districtName}</TableCell>
+                <TableCell>{district.districtCode}</TableCell>
+                <TableCell>
+                  <Button
+                    size="sm"
+                    type="button"
+                    onClick={() => handleEdit(district)}
+                  >
+                    <Pencil />
+                  </Button>
+                  <Button
+                    size="sm"
+                    type="button"
+                    onClick={() => handleDelete(district)}
+                  >
+                    <Trash2 />
+                  </Button>
+                </TableCell>
+              </TableRow>
+            ))
+          )}
         </TableBody>
       </Table>
 

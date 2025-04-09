@@ -1,6 +1,7 @@
 import { log } from "node:console";
 import { errorResponse } from "../helpers/errorResponse.js";
 import District from "../models/districtModels.js";
+import Supervisor from "../models/supervisorModels.js";
 
 export const addDistrict = async (req, res) => {
   try {
@@ -20,12 +21,10 @@ export const addDistrict = async (req, res) => {
     // console.log(req.body);
 
     if (isDistrictExist) {
-      return res
-        .status(409)
-        .json({
-          message: "District name or code already existed",
-          success: false,
-        });
+      return res.status(409).json({
+        message: "District name or code already existed",
+        success: false,
+      });
     }
 
     const district = new District({
@@ -46,15 +45,15 @@ export const addDistrict = async (req, res) => {
 
 export const getDistrict = async (req, res) => {
   try {
-    const districts = await District.find();
-    // console.log(districts);
-    if (districts.length === 0) {
-      return res.status(404).json({
-        success: false,
-        message: "No districts found.",
-        data: [],
-      });
-    }
+    console.log("get district");
+    const districts = await District.find({ isDeleted: false });
+    // if (districts.length === 0) {
+    //   return res.status(404).json({
+    //     success: false,
+    //     message: "No districts found.",
+    //     data: [],
+    //   });
+    // }
 
     return res.status(200).json({
       success: true,
@@ -107,6 +106,46 @@ export const editDistrict = async (req, res) => {
       message: "District updated successfully.",
       data: updatedDistrict,
     });
+  } catch (error) {
+    return errorResponse(res, error);
+  }
+};
+
+export const deleteDistrict = async (req, res) => {
+  try {
+    console.log("delete district");
+    
+    const id = req.params.id;
+    const activeSupervisors = await Supervisor.findOne({
+      districtName: id,
+      isDeleted: false,
+    });
+
+    if (activeSupervisors) {
+      return res.status(400).json({
+        message: "Cannot delete district with active supervisors.",
+      });
+    }
+
+    const district = await District.findByIdAndUpdate(
+      id,
+      { isDeleted: true },
+      { new: true }
+    );
+
+    if (!district) {
+      return res.status(404).json({ message: "District not found." });
+    }
+
+    res
+      .status(200)
+      .json({ message: "District deleted successfully.", data: district });
+  } catch (error) {
+    return errorResponse(res, error);
+  }
+};
+export const activateDistrict = async (req, res) => {
+  try {
   } catch (error) {
     return errorResponse(res, error);
   }
