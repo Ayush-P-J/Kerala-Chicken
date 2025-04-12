@@ -20,6 +20,10 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 
+import { Button } from "@/components/ui/button";
+import { signOut } from "next-auth/react";
+
+
 import {
   Sidebar,
   SidebarContent,
@@ -61,7 +65,7 @@ const data = {
       title: "District",
       url: "#",
       icon: Landmark,
-      isActive: true,
+      isActive: false,
       items: [
         {
           title: "Create",
@@ -77,7 +81,7 @@ const data = {
       title: "Supervisor",
       url: "#",
       icon: Contact,
-      isActive: true,
+      isActive: false,
       items: [
         {
           title: "Create",
@@ -93,7 +97,7 @@ const data = {
       title: "Farmers",
       url: "#",
       icon: Contact,
-      isActive: true,
+      isActive: false,
       items: [
         {
           title: "Create",
@@ -125,7 +129,7 @@ export function AppSidebar({ ...props }) {
             <SidebarMenuItem>
               <SidebarMenuButton>
                 <LayoutDashboardIcon />
-                <Link href={""}>Dashboard</Link>
+                <Link href={"/dashboard"}>Dashboard</Link>
               </SidebarMenuButton>
             </SidebarMenuItem>
           </SidebarMenu>
@@ -133,8 +137,12 @@ export function AppSidebar({ ...props }) {
           {/* <NavProjects projects={data.projects} /> */}
         </SidebarGroup>
       </SidebarContent>
+      <div className="flex justify-end">
+            <Button onClick={() => signOut()}>Sign out</Button>
+          </div>
       <SidebarFooter>{/* <NavUser user={data.user} /> */}</SidebarFooter>
       <SidebarRail />
+      
     </Sidebar>
   );
 }

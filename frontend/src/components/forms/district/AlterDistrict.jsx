@@ -47,7 +47,6 @@ export default function AlterDistrict() {
 
   useEffect(() => {
       dispatch(getDistricts());
-    console.log("hai")
   }, [dispatch]);
 
   const form = useForm({

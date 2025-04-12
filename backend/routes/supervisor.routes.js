@@ -1,16 +1,19 @@
-import express from 'express'
-import { addSupervisor, deleteSupervisor, editSupervisor, getSupervisor } from '../controllers/supervisor.controller.js'
+import express from "express";
+import {
+  addSupervisor,
+  deleteSupervisor,
+  editSupervisor,
+  getSupervisor,
+} from "../controllers/supervisor.controller.js";
+import { authenticateToken } from "../middlewares/jwt.js";
 
-const router = express.Router()
+const router = express.Router();
 
+router.post("/addSupervisor", authenticateToken, addSupervisor);
+router.get("/getSupervisor", authenticateToken, getSupervisor);
+router.post("/editSupervisor", authenticateToken, editSupervisor);
+router.put("/deleteSupervisor/:id", authenticateToken, deleteSupervisor);
 
-router.post('/addSupervisor',addSupervisor)
-router.get('/getSupervisor',getSupervisor)
-router.post('/editSupervisor',editSupervisor)
-router.put('/deleteSupervisor/:id',deleteSupervisor)
-
-
-
-const supervisorRoute = router
+const supervisorRoute = router;
 
 export default supervisorRoute;

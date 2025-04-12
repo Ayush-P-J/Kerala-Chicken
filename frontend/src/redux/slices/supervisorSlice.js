@@ -2,8 +2,7 @@ import { errorMessage } from "@/helper/errorResponse";
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import axios from "axios";
 import { toast } from "react-toastify";
-
-const api = axios.create({ baseURL: "http://localhost:4000/api/" });
+import api from "@/lib/axiosInstance";
 
 export const addSupervisor = createAsyncThunk(
   "supervisor/addSupervisor",

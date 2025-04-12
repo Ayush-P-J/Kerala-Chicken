@@ -1,9 +1,9 @@
 import { errorMessage } from "@/helper/errorResponse";
+import createAxiosInstance from "@/lib/axiosInstance";
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import axios from "axios";
 import { toast } from "react-toastify";
-
-const api = axios.create({ baseURL: "http://localhost:4000/api/" });
+import api from "@/lib/axiosInstance";
 
 export const addDistrict = createAsyncThunk(
   "district/addDistrict",
@@ -97,7 +97,7 @@ export const deleteDistrict = createAsyncThunk(
 
 const initialState = {
   districts: [],
-  loading: false,
+  loading: false, //idle,loading,success,error
   error: null,
 };
 

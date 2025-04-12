@@ -35,7 +35,7 @@ export const CreateFarmer = () => {
   useEffect(() => {
     dispatch(getSupervisors());
   }, [dispatch]);
-
+  
   useEffect(() => {
     if (supervisors) {
       setSupervisorOption(supervisors);

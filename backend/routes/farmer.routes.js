@@ -1,17 +1,19 @@
-import express from 'express'
-import { addFarmer, deleteFarmer, editFarmer, getFarmers } from '../controllers/farmer.controller.js'
+import express from "express";
+import {
+  addFarmer,
+  deleteFarmer,
+  editFarmer,
+  getFarmers,
+} from "../controllers/farmer.controller.js";
+import { authenticateToken } from "../middlewares/jwt.js";
 
-const router = express.Router()
+const router = express.Router();
 
+router.post("/addFarmer", authenticateToken, addFarmer);
+router.get("/getFarmer", authenticateToken, getFarmers);
+router.post("/editFarmer", authenticateToken, editFarmer);
+router.put("/deleteFarmer/:id", authenticateToken, deleteFarmer);
 
-router.post('/addFarmer',addFarmer)
-router.get('/getFarmer',getFarmers)
-router.post('/editFarmer',editFarmer)
-router.put('/deleteFarmer/:id',deleteFarmer)
-
-
-
-
-const farmerRoute = router
+const farmerRoute = router;
 
 export default farmerRoute;

@@ -1,17 +1,22 @@
-import express from 'express'
-import { addDistrict, deleteDistrict, editDistrict, getDistrict } from '../controllers/district.controller.js'
+import express from "express";
+import {
+  addDistrict,
+  deleteDistrict,
+  editDistrict,
+  getDistrict,
+} from "../controllers/district.controller.js";
+import { authenticateToken } from "../middlewares/jwt.js";
 
-const router = express.Router()
+const router = express.Router();
 
+router.post("/addDistrict", authenticateToken, addDistrict);
 
-router.post('/addDistrict',addDistrict)
+router.get("/getDistrict", authenticateToken, getDistrict);
 
-router.get('/getDistrict',getDistrict)
+router.post("/editDistrict", authenticateToken, editDistrict);
 
-router.post('/editDistrict',editDistrict)
+router.put("/deleteDistrict/:id", authenticateToken, deleteDistrict);
 
-router.put('/deleteDistrict/:id',deleteDistrict)
-
-const districtRoute = router
+const districtRoute = router;
 
 export default districtRoute;
