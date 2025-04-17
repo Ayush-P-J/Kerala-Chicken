@@ -74,4 +74,6 @@ jobs:
           pm2 save
 
       - name: 🔄 Restart Nginx (if needed)
-        run: sudo systemctl restart nginx
+        run: |
+           echo ${{ secrets.SUDO_PASSWORD }} | sudo -S systemctl restart nginx
+
