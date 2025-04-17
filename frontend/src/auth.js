@@ -49,12 +49,7 @@ export const { handlers, auth } = NextAuth({
             "Authorize error:",
             error.response?.data || error.message
           );
-          const {message} = error?.response?.data
-
-          toast.error(
-            message || "Something Went Wrong"
-          );
-
+          
           return error
         }
       },
