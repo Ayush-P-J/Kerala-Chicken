@@ -56,12 +56,17 @@ export const addSupervisor = async (req, res) => {
   }
 };
 
-export const getSupervisor = async (req, res) => {
+
+//For get the supervisors in the create farmers
+export const getSupervisorsName = async (req, res) => {
   try {
-    const supervisors = await Supervisor.find({ isDeleted: false }).populate(
+    const supervisors = await Supervisor.find({ isDeleted: false }).select('supervisorName supervisorCode districtName')
+    .populate(
       "districtName"
     );
-    console.log("something");
+
+    console.log("supervisors")
+    console.log(supervisors)
 
     const validSupervisors = supervisors.filter(
       (s) => s.districtName?.isDeleted === false
@@ -86,6 +91,62 @@ export const getSupervisor = async (req, res) => {
   }
 };
 
+export const getSupervisor = async (req, res) => {
+  try {
+    console.log("get supervisor");
+
+    const { 
+      search = "", 
+      page = 1, 
+      limit = 10,
+      sortField = "createdAt",  // Default sort field
+      sortOrder = "desc",      // Default sort order
+    } = req.query;
+
+    const query = {
+      isDeleted: false,
+    };
+
+    // Apply search if present
+    if (search) {
+      query.$or = [
+        { supervisorName: { $regex: search, $options: "i" } },
+        { supervisorCode: { $regex: search, $options: "i" } },
+      ];
+    }
+
+
+    // Sort configuration
+    const sort = { [sortField]: sortOrder === "desc" ? -1 : 1 };
+
+    const skip = (parseInt(page) - 1) * parseInt(limit);
+
+    const [supervisors, total] = await Promise.all([
+      Supervisor.find(query)
+        .populate({
+          path: "districtName",
+          match: { isDeleted: false }
+        })
+        .sort(sort)  // Added sorting here
+        .skip(skip)
+        .limit(parseInt(limit))
+        .then(results => results.filter(s => s.districtName)), // Filter out supervisors with deleted districts
+      Supervisor.countDocuments(query),
+    ]);
+
+    return res.status(200).json({
+      success: true,
+      message: "Supervisors retrieved successfully.",
+      data: supervisors,
+      total,
+      currentPage: parseInt(page),
+      totalPages: Math.ceil(total / parseInt(limit)),
+    });
+  } catch (error) {
+    console.error("Error fetching supervisors:", error);
+    return errorResponse(res, error);
+  }
+};
 export const editSupervisor = async (req, res) => {
   try {
     console.log("hitteds");

@@ -30,11 +30,14 @@ export const addDistrict = createAsyncThunk(
   }
 );
 
-export const getDistricts = createAsyncThunk(
-  "district/getDistrict",
+//To get the list of district in the create supervisor
+
+export const getDistrictsName = createAsyncThunk(
+  "district/getDistrictsName",
   async (_, { rejectWithValue }) => {
     try {
-      const response = await api.get("/getDistrict");
+      const response = await api.get("/getDistrictsName");
+      console.log("name")
       return response.data.data;
     } catch (error) {
       const {message} = error.response.data
@@ -44,6 +47,29 @@ export const getDistricts = createAsyncThunk(
     }
   }
 );
+
+export const getDistricts = createAsyncThunk(
+  "district/getDistrict",
+  async ({ search = "", page = 1, limit = 10 }, { rejectWithValue }) => {
+    try {
+      const response = await api.get("/getDistrict", {
+        params: { search, page, limit },
+      });
+
+      return {
+        data: response.data.data,
+        total: response.data.total,
+        currentPage: response.data.currentPage,
+        totalPages: response.data.totalPages,
+      };
+    } catch (error) {
+      const message = error.response?.data?.message || "Failed to get districts. Please try again!";
+      toast.error(message);
+      return rejectWithValue(errorMessage(error));
+    }
+  }
+);
+
 
 export const editDistrict = createAsyncThunk(
   "district/editDistrict",
@@ -97,9 +123,15 @@ export const deleteDistrict = createAsyncThunk(
 
 const initialState = {
   districts: [],
-  loading: false, //idle,loading,success,error
+  status: "idle", // 'idle' | 'loading' | 'succeeded' | 'failed'
   error: null,
+  total: 0,
+  currentPage: 1,
+  totalPages: 1,
+  searchTerm: "",
+  limit: 5,
 };
+
 
 export const districtSlice = createSlice({
   name: "district",
@@ -109,35 +141,55 @@ export const districtSlice = createSlice({
   extraReducers: (builder) => {
     builder
       .addCase(addDistrict.pending, (state) => {
-        state.loading = true;
+        state.status = "loading";
         state.error = null;
       })
       .addCase(addDistrict.fulfilled, (state, action) => {
-        state.loading = false;
+        state.status = "succeeded";
         state.districts.push(action.payload);
       })
       .addCase(addDistrict.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.payload;
+        state.status = "failed";
+        state.error = action.payload || "Failed to add district";
       })
 
+
       .addCase(getDistricts.pending, (state) => {
-        state.loading = true;
+        state.status = "loading";
+        state.error = null;
       })
       .addCase(getDistricts.fulfilled, (state, action) => {
-        state.loading = false;
-        state.districts = action.payload;
+        state.status = "succeeded";
+        state.districts = action.payload.data;
+        state.total = action.payload.total;
+        state.totalPages = Math.ceil(action.payload.total / state.limit);
       })
       .addCase(getDistricts.rejected, (state, action) => {
-        state.error = action.payload;
+        state.status = "failed";
+        state.error = action.payload || "Something went wrong!";
+      })
+
+      //To get the list of district in the create supervisor
+
+      .addCase(getDistrictsName.pending, (state) => {
+        state.status = "loading";
+        state.error = null;
+      })
+      .addCase(getDistrictsName.fulfilled, (state, action) => {
+        state.status = "succeeded";
+        state.districts = action.payload.data;
+      })
+      .addCase(getDistrictsName.rejected, (state, action) => {
+        state.status = "failed";
+        state.error = action.payload || "Something went wrong!";
       })
 
       .addCase(editDistrict.pending, (state) => {
-        state.loading = true;
+        state.status = "loading";
         state.error = null;
       })
       .addCase(editDistrict.fulfilled, (state, action) => {
-        state.loading = false;
+        state.status = "succeeded";
         const updatedDistrict = action.payload;
         const index = state.districts.findIndex(
           (d) => d._id === updatedDistrict._id
@@ -147,15 +199,16 @@ export const districtSlice = createSlice({
         }
       })
       .addCase(editDistrict.rejected, (state, action) =>{
-        state.error = action.error.payload
+        state.status = "failed";
+        state.error = action?.error?.payload 
       }) 
 
       .addCase(deleteDistrict.pending, (state) => {
-        state.loading = true;
+        state.status = "loading";
         state.error = null;
       })
       .addCase(deleteDistrict.fulfilled, (state, action) => {
-        state.loading = false;
+        state.status = "succeeded";
         const deletedDistrict = action.payload;
         const index = state.districts.findIndex(d => d._id === deletedDistrict._id);
         if (index !== -1) {
@@ -163,8 +216,8 @@ export const districtSlice = createSlice({
         }
       })
       .addCase(deleteDistrict.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.payload;
+        state.status = "failed";
+        state.error = action.payload || "Failed to delete district";
       })
       
   },

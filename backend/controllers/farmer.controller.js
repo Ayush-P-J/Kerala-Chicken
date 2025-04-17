@@ -63,22 +63,75 @@ export const addFarmer = async (req, res) => {
 // Get Farmers
 export const getFarmers = async (req, res) => {
   try {
-    const farmers = await Farmer.find({isDeleted: false}).populate("supervisorName").populate("district")
+    console.log("get farmers");
 
-    console.log("farmers")
-    console.log(farmers)
+    const {
+      search = "",
+      page = 1,
+      limit = 10,
+      sortField = "createdAt",
+      sortOrder = "desc",
+    } = req.query;
 
-    const validFarmers = farmers.filter(
-      (f) => f.supervisorName?.isDeleted === false && f.district?.isDeleted == false
-    );
+    // Base query
+    const query = {
+      isDeleted: false
+    };
+
+    // Search functionality
+    if (search) {
+      query.$or = [
+        { farmerName: { $regex: search, $options: "i" } },
+        { farmerCode: { $regex: search, $options: "i" } },
+
+      ];
+    }
+
+
+    // Sort configuration
+    const sort = { [sortField]: sortOrder === "desc" ? -1 : 1 };
+
+    // Pagination
+    const skip = (parseInt(page) - 1) * parseInt(limit);
+
+    const [farmers, total] = await Promise.all([
+      Farmer.find(query)
+        .populate([
+          {
+            path: "supervisorName",
+            match: { isDeleted: false }
+          },
+          {
+            path: "district",
+            match: { isDeleted: false }
+          }
+        ])
+        .sort(sort)
+        .skip(skip)
+        .limit(parseInt(limit))
+        .then(results => 
+          results.filter(f => 
+            f.supervisorName?.isDeleted === false && 
+            f.district?.isDeleted === false
+          )
+        ),
+      Farmer.countDocuments(query)
+    ]);
 
     return res.status(200).json({
-      message: "Farmers retrieved successfully.",
       success: true,
-      data: validFarmers,
+      message: "Farmers retrieved successfully.",
+      data: farmers,
+      pagination: {
+        total,
+        currentPage: parseInt(page),
+        totalPages: Math.ceil(total / parseInt(limit)),
+        limit: parseInt(limit)
+      }
     });
 
   } catch (error) {
+    console.error("Error fetching farmers:", error);
     return errorResponse(res, error);
   }
 };

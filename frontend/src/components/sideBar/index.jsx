@@ -16,13 +16,12 @@ import {
   User,
   Landmark,
   Camera,
-  Contact
+  Contact,
 } from "lucide-react";
 import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
 import { signOut } from "next-auth/react";
-
 
 import {
   Sidebar,
@@ -36,6 +35,7 @@ import {
   SidebarRail,
 } from "@/components/ui/sidebar";
 import { NavMain } from "./navMain";
+import { NavUser } from "./NavUser";
 
 const data = {
   user: {
@@ -109,15 +109,10 @@ const data = {
         },
       ],
     },
-    
   ],
-  
 };
 
-
 export function AppSidebar({ ...props }) {
-  
-
   return (
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader className={"h-16"}>
@@ -138,11 +133,10 @@ export function AppSidebar({ ...props }) {
         </SidebarGroup>
       </SidebarContent>
       <div className="flex justify-end">
-            <Button onClick={() => signOut()}>Sign out</Button>
-          </div>
+        <NavUser user={data.user}/>
+      </div>
       <SidebarFooter>{/* <NavUser user={data.user} /> */}</SidebarFooter>
       <SidebarRail />
-      
     </Sidebar>
   );
 }

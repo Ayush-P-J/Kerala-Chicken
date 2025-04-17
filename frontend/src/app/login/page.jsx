@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { signIn, useSession } from "next-auth/react";
@@ -19,7 +19,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Loader2 } from "lucide-react";
-import { ToastContainer } from "react-toastify";
+import { ToastContainer, toast } from "react-toastify";
 import LoadingSpinner from "@/components/loadingSpinner/loadingSpinner";
 
 const loginSchema = z.object({
@@ -29,16 +29,9 @@ const loginSchema = z.object({
 
 export default function LoginPage() {
   const { data: session, status } = useSession();
-
-  if (status === "loading") {
-    return <LoadingSpinner />;
-  }
-  if (session) {
-    redirect("/dashboard");
-  }
   const router = useRouter();
   const [errorMsg, setErrorMsg] = useState("");
-  const [loading, setLoading] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const form = useForm({
     resolver: zodResolver(loginSchema),
@@ -48,31 +41,66 @@ export default function LoginPage() {
     },
   });
 
+  // Handle session redirect
+  useEffect(() => {
+    if (session) {
+      router.push("/dashboard");
+    }
+  }, [session, router]);
+
+  if (status === "loading") {
+    return <LoadingSpinner />;
+  }
+
   const onSubmit = async (values) => {
     setErrorMsg("");
-    setLoading(true);
-    const res = await signIn("credentials", {
-      ...values,
-      redirect: false,
-    });
-    console.log("res");
-    console.log(res);
+    setIsSubmitting(true);
 
-    if (res?.ok) {
-      router.push("/dashboard");
-    } else {
-      toast.error("Failed to update. Please try again!");
+    try {
+      const res = await signIn("credentials", {
+        email: values.email,
+        password: values.password,
+        redirect: false,
+      });
 
-      setErrorMsg("Invalid email or password");
+      if (res?.error) {
+        let errorMessage = "Invalid credentials";
+        
+        // Handle both JSON and string errors
+        if (res.error.startsWith("{")) {
+          try {
+            const errorData = JSON.parse(res.error);
+            errorMessage = errorData.message || errorData.error || errorMessage;
+          } catch (e) {
+            console.error("Error parsing JSON:", e);
+          }
+        } else {
+          errorMessage =
+          //  res.error === "CredentialsSignin"
+          //   ? 
+            "Invalid email or password"
+            // : res.error;
+        }
+
+        setErrorMsg(errorMessage);
+        toast.error(errorMessage);
+      } else if (res?.ok) {
+        router.push("/dashboard");
+        toast.success("Login successful!");
+      }
+    } catch (error) {
+      console.error("Login error:", error);
+      setErrorMsg("Connection problem. Please try again.");
+      toast.error("Network error occurred");
+    } finally {
+      setIsSubmitting(false);
     }
-
-    setLoading(false);
   };
+
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100 p-4">
       <ToastContainer />
-
       <Card className="w-full max-w-md shadow-xl">
         <CardContent className="p-6 space-y-6">
           <h2 className="text-2xl font-bold text-center">Admin Login</h2>
@@ -115,10 +143,10 @@ export default function LoginPage() {
                 <p className="text-sm text-red-500 text-center">{errorMsg}</p>
               )}
 
-              <Button type="submit" className="w-full" disabled={loading}>
-                {loading ? (
+              <Button type="submit" className="w-full" disabled={isSubmitting}>
+                {isSubmitting && (
                   <Loader2 className="w-4 h-4 animate-spin mr-2" />
-                ) : null}
+                )}
                 Login
               </Button>
             </form>

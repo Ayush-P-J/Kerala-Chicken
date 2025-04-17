@@ -43,23 +43,76 @@ export const addDistrict = async (req, res) => {
   }
 };
 
-export const getDistrict = async (req, res) => {
+//To get the list of district in the create supervisor
+export const getDistrictsName = async (req, res) => {
   try {
-    console.log("get district");
-    const districts = await District.find({ isDeleted: false });
-    // if (districts.length === 0) {
-    //   return res.status(404).json({
-    //     success: false,
-    //     message: "No districts found.",
-    //     data: [],
-    //   });
-    // }
+    console.log("get districtss");
+    const districts = await District.find({ isDeleted: false }).select("districtName districtCode" )
+    console.log(districts);
+    
 
     return res.status(200).json({
       success: true,
       message: "Districts retrieved successfully.",
       data: districts,
     });
+  } catch (error) {
+    console.error("Error fetching districts:", error);
+    return errorResponse(res, error);
+  }
+};
+
+
+export const getDistrict = async (req, res) => {
+  try {
+    console.log("get district");
+
+    const { 
+      search = "", 
+      page = 1, 
+      limit = 10,
+      sortField = "createdAt",
+      sortOrder = "desc",
+    } = req.query;
+
+    // Base query for non-deleted districts
+    const query = {
+      isDeleted: false
+    };
+
+    // Search functionality
+    if (search) {
+      query.$or = [
+        { districtName: { $regex: search, $options: "i" } },
+        { districtCode: { $regex: search, $options: "i" } }
+      ];
+    }
+
+    // Pagination calculations
+    const skip = (parseInt(page) - 1) * parseInt(limit);
+    const sort = { [sortField]: sortOrder === "desc" ? -1 : 1 };
+
+    // Parallel execution of queries
+    const [districts, total] = await Promise.all([
+      District.find(query)
+        .sort(sort)
+        .skip(skip)
+        .limit(parseInt(limit)),
+      District.countDocuments(query)
+    ]);
+
+    return res.status(200).json({
+      success: true,
+      message: "Districts retrieved successfully",
+      data: districts,
+      pagination: {
+        total,
+        currentPage: parseInt(page),
+        totalPages: Math.ceil(total / parseInt(limit)),
+        limit: parseInt(limit)
+      }
+    });
+
   } catch (error) {
     console.error("Error fetching districts:", error);
     return errorResponse(res, error);

@@ -41,28 +41,37 @@ import {
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { farmerSchema } from "@/zodSchema/farmerSchema";
-import { getSupervisors } from "@/redux/slices/supervisorSlice";
+import { getSupervisors, getSupervisorsName } from "@/redux/slices/supervisorSlice";
 
 import { Pencil, Trash2 } from "lucide-react";
 import Swal from "sweetalert2";
+import FarmerTable from "@/components/tables/FarmerTable";
+import { useSearch } from "@/contexts/SearchContext";
+import { useDebounce } from "use-debounce";
+import LoadingSpinner from "@/components/loadingSpinner/loadingSpinner";
 
 export default function AlterFarmer() {
   const dispatch = useAppDispatch();
-  const { farmers } = useAppSelector((state) => state.farmer);
-  const { supervisors } = useAppSelector((state) => state.supervisor);
+  const { farmers, totalPages, currentPage, } = useAppSelector(
+    (state) => state.farmer
+  );
+  const { supervisors, status} = useAppSelector((state) => state.supervisor);
+
+  const { searchQuery } = useSearch();
 
   const [open, setOpen] = useState(false);
   const [selectedFarmer, setSelectedFarmer] = useState(null);
   const [supervisorOption, setSupervisorOption] = useState([]);
   const [districtId, setDistrictId] = useState();
+  const [page, setPage] = useState(1);
+  const [debouncedSearchQuery] = useDebounce(searchQuery, 500);
 
   useEffect(() => {
-      dispatch(getFarmers());
+    dispatch(getFarmers({ search: debouncedSearchQuery, page, limit: 5 }));
   }, []);
 
-
   useEffect(() => {
-    dispatch(getSupervisors());
+    dispatch(getSupervisorsName());
   }, [dispatch]);
 
   useEffect(() => {
@@ -93,6 +102,15 @@ export default function AlterFarmer() {
 
   const { reset } = form;
 
+
+  useEffect(() => {
+    dispatch(getFarmers({ search: debouncedSearchQuery, page, limit: 5 }));
+  }, [dispatch, debouncedSearchQuery, page]);
+
+  if (status === "loading") {
+    return <LoadingSpinner />;
+  }
+
   const handleEdit = (farmer) => {
     setSelectedFarmer(farmer);
     reset({
@@ -121,7 +139,7 @@ export default function AlterFarmer() {
     };
     await dispatch(editFarmer(updatedFarmer)).unwrap();
     setOpen(false);
-    dispatch(getFarmers());
+    dispatch(getFarmers({ search: debouncedSearchQuery, page, limit: 5 }));
   };
 
   const handleDelete = (farmer) => {
@@ -133,69 +151,50 @@ export default function AlterFarmer() {
       confirmButtonColor: "#d33",
       cancelButtonColor: "#3085d6",
       confirmButtonText: "Yes, delete it!",
-    }).then( async(result) => {
+    }).then(async (result) => {
       if (result.isConfirmed) {
         const id = farmer._id;
-        await dispatch(deleteFarmer(id)).unwrap()
-        dispatch(getFarmers());
+        await dispatch(deleteFarmer(id)).unwrap();
+        dispatch(getFarmers({ search: debouncedSearchQuery, page, limit: 5 }));
       }
     });
   };
 
   return (
     <>
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead className="w-20">Index</TableHead>
-            <TableHead>Farmer Name</TableHead>
-            <TableHead>Farmer Code</TableHead>
-            <TableHead>Supervisor</TableHead>
-            <TableHead>Action</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {farmers.length === 0 ? (
-            <TableRow>
-              <TableCell colSpan={5} className="text-center text-xl py-6">
-                No farmers found
-              </TableCell>
-            </TableRow>
-          ) : (
-            farmers.map((farmer, index) => (
-              <TableRow key={farmer._id || index}>
-                <TableCell>{index + 1}</TableCell>
-                <TableCell>{farmer.farmerName}</TableCell>
-                <TableCell>{farmer.farmerCode}</TableCell>
-                <TableCell>{farmer.supervisorName?.supervisorName}</TableCell>
-                <TableCell>
-                  <Button
-                    size="sm"
-                    type="button"
-                    onClick={() => handleEdit(farmer)}
-                  >
-                    <Pencil />
-                  </Button>
-                  <Button
-                    size="sm"
-                    type="button"
-                    onClick={() => handleDelete(farmer)}
-                  >
-                    <Trash2 />
-                  </Button>
-                </TableCell>
-              </TableRow>
-            ))
-          )}
-        </TableBody>
-      </Table>
+      <FarmerTable
+        farmers={farmers}
+        handleEdit={handleEdit}
+        handleDelete={handleDelete}
+      />
+
+      {totalPages > 1 && (
+        <div className="flex items-center justify-center gap-2 pt-4">
+          <Button
+            variant="outline"
+            disabled={page === 1}
+            onClick={() => setPage((prev) => Math.max(1, prev - 1))}
+          >
+            Previous
+          </Button>
+          <span>
+            Page {page} of {totalPages}
+          </span>
+          <Button
+            variant="outline"
+            disabled={page === totalPages}
+            onClick={() => setPage((prev) => Math.min(totalPages, prev + 1))}
+          >
+            Next
+          </Button>
+        </div>
+      )}
 
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Edit Farmer</DialogTitle>
           </DialogHeader>
-          {selectedFarmer && (
             <Form {...form}>
               <form
                 onSubmit={form.handleSubmit(onSubmit)}
@@ -275,7 +274,6 @@ export default function AlterFarmer() {
                 </div>
               </form>
             </Form>
-          )}
         </DialogContent>
       </Dialog>
     </>

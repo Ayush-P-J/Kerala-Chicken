@@ -16,7 +16,7 @@ import { Button } from "@/components/ui/button";
 import { farmerSchema } from "@/zodSchema/farmerSchema";
 import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 import { addFarmer } from "@/redux/slices/farmerSlice";
-import { getSupervisors } from "@/redux/slices/supervisorSlice";
+import { getSupervisors, getSupervisorsName } from "@/redux/slices/supervisorSlice";
 import { useEffect, useState } from "react";
 import {
   Select,
@@ -33,9 +33,9 @@ export const CreateFarmer = () => {
   const [districtId, setDistrictId] = useState();
 
   useEffect(() => {
-    dispatch(getSupervisors());
+    dispatch(getSupervisorsName());
   }, [dispatch]);
-  
+
   useEffect(() => {
     if (supervisors) {
       setSupervisorOption(supervisors);
@@ -63,7 +63,7 @@ export const CreateFarmer = () => {
   });
 
   const onSubmit = async (data) => {
-    const formData = { ...data, district: districtId }
+    const formData = { ...data, district: districtId };
     console.log(formData);
     dispatch(addFarmer(formData));
     form.reset();
@@ -107,7 +107,16 @@ export const CreateFarmer = () => {
               <FormItem className="w-full">
                 <FormLabel>Supervisor</FormLabel>
                 <Select
-                  onValueChange={field.onChange}
+                  onValueChange={(value) => {
+                    field.onChange(value); // Update the form value
+                    // Find the selected supervisor and set districtId
+                    const selectedSupervisor = supervisorOption.find(
+                      (s) => s._id === value
+                    );
+                    if (selectedSupervisor) {
+                      setDistrictId(selectedSupervisor.districtName._id);
+                    }
+                  }}
                   defaultValue={field.value}
                   className="w-full"
                 >
@@ -121,9 +130,6 @@ export const CreateFarmer = () => {
                       <SelectItem
                         key={supervisor?._id || index}
                         value={supervisor?._id}
-                        onClick={() =>{
-                          setDistrictId(supervisor?.districtName._id)}
-                        }
                       >
                         {supervisor?.supervisorName}
                       </SelectItem>

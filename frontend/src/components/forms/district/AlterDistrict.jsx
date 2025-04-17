@@ -1,4 +1,5 @@
 "use client";
+
 import {
   Table,
   TableBody,
@@ -17,8 +18,7 @@ import {
 } from "../../ui/form";
 import { Button } from "../../ui/button";
 import { Input } from "../../ui/input";
-
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 import {
   deleteDistrict,
@@ -34,20 +34,25 @@ import {
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { districtSchema } from "@/zodSchema/districtSchema";
-import { ToastContainer, toast } from "react-toastify";
 import { Pencil, Trash2 } from "lucide-react";
 import Swal from "sweetalert2";
+import { useDebounce } from "use-debounce"; // Corrected import
+import LoadingSpinner from "@/components/loadingSpinner/loadingSpinner";
+import DistrictTable from "@/components/tables/district-table";
+import { useSearch } from "@/contexts/SearchContext";
+
 
 export default function AlterDistrict() {
   const dispatch = useAppDispatch();
-  const { loading, districts } = useAppSelector((state) => state.district);
+  const { status, districts, totalPages, currentPage } = useAppSelector(
+    (state) => state.district
+  );
+
+  const { searchQuery } = useSearch();
+
   const [open, setOpen] = useState(false);
   const [selectedDistrict, setSelectedDistrict] = useState(null);
-
-
-  useEffect(() => {
-      dispatch(getDistricts());
-  }, [dispatch]);
+  const [page, setPage] = useState(1);
 
   const form = useForm({
     resolver: zodResolver(districtSchema),
@@ -57,21 +62,37 @@ export default function AlterDistrict() {
     },
   });
 
-  const { reset } = form; // Destructure reset function
+  const { reset } = form;
+
+
+
+  // Debounced search
+const [debouncedSearchQuery] = useDebounce(searchQuery, 500);
+
+useEffect(() => {
+  dispatch(getDistricts({ search: debouncedSearchQuery, page, limit: 5 }));
+}, [dispatch]);
+
+useEffect(() => {
+  dispatch(getDistricts({ search: debouncedSearchQuery, page, limit: 5 }));
+}, [dispatch, debouncedSearchQuery, page]);
+
+
+
+
+  if (status === "loading") {
+    return <LoadingSpinner />;
+  }
 
   const handleEdit = (district) => {
     setSelectedDistrict(district);
     reset({
-      districtName: district.districtName, // Set values from selected district
+      districtName: district.districtName,
       districtCode: district.districtCode,
     });
     setOpen(true);
   };
 
-  const handleDelet = (district) => {
-    const id = district._id;
-    dispatch(deleteDistrict(id));
-  };
   const handleDelete = (district) => {
     Swal.fire({
       title: "Are you sure?",
@@ -91,110 +112,90 @@ export default function AlterDistrict() {
 
   const onSubmit = async (formData) => {
     if (!selectedDistrict) return;
-
     const updatedDistrict = {
       ...formData,
       _id: selectedDistrict._id,
     };
-        await dispatch(editDistrict(updatedDistrict)).unwrap();
-    
-
+    await dispatch(editDistrict(updatedDistrict)).unwrap();
     setOpen(false);
-    dispatch(getDistricts());
-
+    dispatch(getDistricts({ search: debouncedSearchQuery, page, limit: 5 }));
   };
 
   return (
     <>
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead className={"w-20"}>Index</TableHead>
-            <TableHead>District Name</TableHead>
-            <TableHead>District Code</TableHead>
-            <TableHead>Action</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {districts.length === 0 ? (
-            <TableRow>
-              <TableCell colSpan={4} className="text-center text-xl py-6">
-                No district found
-              </TableCell>
-            </TableRow>
-          ) : (
-            districts.map((district, index) => (
-              <TableRow key={district._id || index}>
-                <TableCell>{index + 1}</TableCell>
-                <TableCell>{district.districtName}</TableCell>
-                <TableCell>{district.districtCode}</TableCell>
-                <TableCell>
-                  <Button
-                    size="sm"
-                    type="button"
-                    onClick={() => handleEdit(district)}
-                  >
-                    <Pencil />
-                  </Button>
-                  <Button
-                    size="sm"
-                    type="button"
-                    onClick={() => handleDelete(district)}
-                  >
-                    <Trash2 />
-                  </Button>
-                </TableCell>
-              </TableRow>
-            ))
-          )}
-        </TableBody>
-      </Table>
+      <DistrictTable
+        districts={districts}
+        handleEdit={handleEdit}
+        handleDelete={handleDelete}
+      />
 
+      {/* Pagination */}
+      {totalPages > 1 && (
+        <div className="flex items-center justify-center gap-2 pt-4">
+          <Button
+            variant="outline"
+            disabled={page === 1}
+            onClick={() => setPage((prev) => Math.max(1, prev - 1))}
+          >
+            Previous
+          </Button>
+          <span>
+            Page {page} of {totalPages}
+          </span>
+          <Button
+            variant="outline"
+            disabled={page === totalPages}
+            onClick={() => setPage((prev) => Math.min(totalPages, prev + 1))}
+          >
+            Next
+          </Button>
+        </div>
+      )}
+
+      {/* Dialog */}
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Edit District</DialogTitle>
           </DialogHeader>
-          {selectedDistrict && (
-            <Form {...form}>
-              <form
-                onSubmit={form.handleSubmit(onSubmit)}
-                className="space-y-6"
-              >
-                <FormField
-                  name="districtName"
-                  control={form.control}
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>District Name</FormLabel>
-                      <FormControl>
-                        <Input {...field} placeholder="District Name" />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  name="districtCode"
-                  control={form.control}
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>District Code</FormLabel>
-                      <FormControl>
-                        <Input {...field} placeholder="District Code" />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <div className="sm:col-span-2 flex gap-5 justify-end">
-                  <Button type="submit" className={"w-full"}>
-                    Save
-                  </Button>
-                </div>
-              </form>
-            </Form>
-          )}
+
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+              <FormField
+                name="districtName"
+                control={form.control}
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>District Name</FormLabel>
+                    <FormControl>
+                      <Input {...field} placeholder="District Name" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                name="districtCode"
+                control={form.control}
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>District Code</FormLabel>
+                    <FormControl>
+                      <Input {...field} placeholder="District Code" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <div className="flex justify-end gap-4">
+                <Button type="submit" className="w-full">
+                  Save
+                </Button>
+              </div>
+            </form>
+          </Form>
         </DialogContent>
       </Dialog>
     </>

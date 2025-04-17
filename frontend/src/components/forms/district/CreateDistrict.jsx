@@ -17,12 +17,13 @@ import { districtSchema } from "@/zodSchema/districtSchema";
 import { ToastContainer, toast } from "react-toastify";
 import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 import { addDistrict } from "@/redux/slices/districtSlice";
+import LoadingSpinner from "@/components/loadingSpinner/loadingSpinner";
 
 export const CreateDistrict = () => {
 
   const dispatch = useAppDispatch()
 
-  const {loading} = useAppSelector((state) => state.district.loading);
+  const {status} = useAppSelector((state) => state.district);
 
 
   const form = useForm({
@@ -32,6 +33,10 @@ export const CreateDistrict = () => {
       districtCode: "",
     },
   });
+
+  if (status === "loading") {
+      return <LoadingSpinner />;
+  }
 
   const onSubmit = async (formData) => {
     console.log(formData);

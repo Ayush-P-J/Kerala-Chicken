@@ -27,7 +27,7 @@ import { Input } from "../../ui/input";
 
 import { useEffect, useState } from "react";
 import { useAppDispatch, useAppSelector } from "@/redux/hooks";
-import { editDistrict, getDistricts } from "@/redux/slices/districtSlice";
+import { editDistrict, getDistricts, getDistrictsName } from "@/redux/slices/districtSlice";
 import {
   Dialog,
   DialogContent,
@@ -47,32 +47,24 @@ import { supervisorSchema } from "@/zodSchema/supervisorSchema";
 import { getFarmers } from "@/redux/slices/farmerSlice";
 import { Pencil, Trash2 } from "lucide-react";
 import Swal from "sweetalert2";
+import SupervisorTable from "@/components/tables/SupervisorTable";
+import { useSearch } from "@/contexts/SearchContext";
+import { useDebounce } from "use-debounce";
+import LoadingSpinner from "@/components/loadingSpinner/loadingSpinner";
 export default function AlterSupervisor() {
   const dispatch = useAppDispatch();
-  const { loading, supervisors } = useAppSelector((state) => state.supervisor);
+  const { status, supervisors, totalPages, currentPage } = useAppSelector(
+    (state) => state.supervisor
+  );
   const { districts } = useAppSelector((state) => state.district);
+  const { searchQuery } = useSearch();
 
   const [open, setOpen] = useState(false);
   const [selectedSupervisor, setSelectedSupervisor] = useState(null);
-
+  const [page, setPage] = useState(1);
+  
+  const [debouncedSearchQuery] = useDebounce(searchQuery, 500);
   const [districtOptions, setDistrictOptions] = useState([]);
-
-
-
-  useEffect(() => {
-    if (districts.length > 0) {
-      setDistrictOptions(districts);
-      // console.log(districtOptions);
-      // console.log(districts);
-    }
-  }, [districts]);
-
-  useEffect(() => {
-    console.log("supervisors")
-      dispatch(getSupervisors());
-    
-  }, [dispatch]);
-
   const form = useForm({
     resolver: zodResolver(supervisorSchema),
     defaultValues: {
@@ -91,7 +83,33 @@ export default function AlterSupervisor() {
     },
   });
 
+  useEffect(() => {
+      setDistrictOptions(districts);
+      // console.log(districtOptions);
+      // console.log(districts);
+  }, [districts]);
+
+    useEffect(() => {
+      dispatch(getDistricts());
+    }, []);
+
+  useEffect(() => {
+    console.log("supervisors");
+    dispatch(getSupervisors({ search: debouncedSearchQuery, page, limit: 5 }));
+  }, [dispatch]);
+
+  
+
   const { reset } = form; // Destructure reset function
+
+
+  useEffect(() => {
+    dispatch(getSupervisors({ search: debouncedSearchQuery, page, limit: 5 }));
+  }, [dispatch, debouncedSearchQuery, page]);
+
+  if (status === "loading") {
+    return <LoadingSpinner />;
+  }
 
   const handleEdit = (supervisor) => {
     setSelectedSupervisor(supervisor);
@@ -113,11 +131,6 @@ export default function AlterSupervisor() {
     setOpen(true);
   };
 
-  // const onSubmit = (data) => {
-  //   console.log("Updated Values:", data);
-  //   toast.success("District updated successfully!");
-  // };
-
   const handleDelete = (supervisor) => {
     Swal.fire({
       title: "Are you sure?",
@@ -130,8 +143,10 @@ export default function AlterSupervisor() {
     }).then(async (result) => {
       if (result.isConfirmed) {
         const id = supervisor._id;
-        await dispatch(deleteSupervisor(id)).unwrap()
-        dispatch(getSupervisors());
+        await dispatch(deleteSupervisor(id)).unwrap();
+        dispatch(
+          getSupervisors({ search: debouncedSearchQuery, page, limit: 5 })
+        );
       }
     });
   };
@@ -147,262 +162,240 @@ export default function AlterSupervisor() {
 
     setOpen(false);
 
-    dispatch(getSupervisors());
+    dispatch(getSupervisors({ search: debouncedSearchQuery, page, limit: 5 }));
   };
 
   return (
     <>
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead className={"w-20"}>Index</TableHead>
-            <TableHead>Supervisor Name</TableHead>
-            <TableHead>Supervisor Code</TableHead>
-            <TableHead>District Code</TableHead>
-            <TableHead>Action</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {supervisors.length === 0 ? (
-            <TableRow>
-              <TableCell colSpan={5} className="text-center text-xl py-6">
-                No supervisor found
-              </TableCell>
-            </TableRow>
-          ) : (
-            supervisors.map((supervisor, index) => (
-              <TableRow key={supervisor._id || index}>
-                <TableCell>{index + 1}</TableCell>
-                <TableCell>{supervisor.supervisorName}</TableCell>
-                <TableCell>{supervisor.supervisorCode}</TableCell>
-                <TableCell>{supervisor.districtName?.districtName}</TableCell>
-                <TableCell>
-                  <Button
-                    size="sm"
-                    type="button"
-                    onClick={() => handleEdit(supervisor)}
-                  >
-                    <Pencil />
-                  </Button>
-                  <Button
-                    size="sm"
-                    type="button"
-                    onClick={() => handleDelete(supervisor)}
-                  >
-                    <Trash2 />
-                  </Button>
-                </TableCell>
-              </TableRow>
-            ))
-          )}
-        </TableBody>
-      </Table>
+      <SupervisorTable
+        supervisors={supervisors}
+        handleEdit={handleEdit}
+        handleDelete={handleDelete}
+      />
+
+      {/* Pagination */}
+      {totalPages > 1 && (
+        <div className="flex items-center justify-center gap-2 pt-4">
+          <Button
+            variant="outline"
+            disabled={page === 1}
+            onClick={() => setPage((prev) => Math.max(1, prev - 1))}
+          >
+            Previous
+          </Button>
+          <span>
+            Page {page} of {totalPages}
+          </span>
+          <Button
+            variant="outline"
+            disabled={page === totalPages}
+            onClick={() => setPage((prev) => Math.min(totalPages, prev + 1))}
+          >
+            Next
+          </Button>
+        </div>
+      )}
 
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Edit District</DialogTitle>
           </DialogHeader>
-          {selectedSupervisor && (
-            <Form {...form}>
-              <form
-                onSubmit={form.handleSubmit(onSubmit)}
-                className="space-y-6"
-              >
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                  <FormField
-                    name="supervisorName"
-                    control={form.control}
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Supervisor Name</FormLabel>
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                <FormField
+                  name="supervisorName"
+                  control={form.control}
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Supervisor Name</FormLabel>
+                      <FormControl>
+                        <Input {...field} placeholder="Supervisor Name" />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  name="supervisorCode"
+                  control={form.control}
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Supervisor Code</FormLabel>
+                      <FormControl>
+                        <Input {...field} placeholder="Supervisor Code" />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  className={"w-full"}
+                  name="districtName"
+                  control={form.control}
+                  render={({ field }) => (
+                    <FormItem className="w-full">
+                      <FormLabel>District Name</FormLabel>
+                      <Select
+                        onValueChange={field.onChange}
+                        defaultValue={field.value}
+                        className="w-full"
+                      >
                         <FormControl>
-                          <Input {...field} placeholder="Supervisor Name" />
+                          <SelectTrigger className="w-full">
+                            <SelectValue placeholder="Select District" />
+                          </SelectTrigger>
                         </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    name="supervisorCode"
-                    control={form.control}
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Supervisor Code</FormLabel>
-                        <FormControl>
-                          <Input {...field} placeholder="Supervisor Code" />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    className={"w-full"}
-                    name="districtName"
-                    control={form.control}
-                    render={({ field }) => (
-                      <FormItem className="w-full">
-                        <FormLabel>District Name</FormLabel>
-                        <Select
-                          onValueChange={field.onChange}
-                          defaultValue={field.value}
-                          className="w-full"
-                        >
-                          <FormControl>
-                            <SelectTrigger className="w-full">
-                              <SelectValue placeholder="Select District" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent className="w-full">
-                            {districtOptions.map((district, index) => (
-                              <SelectItem
-                                key={district?._id || index}
-                                value={district?._id}
-                              >
-                                {district.districtName}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+                        <SelectContent className="w-full">
+                          {districtOptions.map((district, index) => (
+                            <SelectItem
+                              key={district?._id || index}
+                              value={district?._id}
+                            >
+                              {district.districtName}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-                  <FormField
-                    name="phoneNumber"
-                    control={form.control}
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Phone Number</FormLabel>
-                        <FormControl>
-                          <Input
-                            {...field}
-                            placeholder="Phone Number"
-                            type="tel"
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    name="email"
-                    control={form.control}
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Email</FormLabel>
-                        <FormControl>
-                          <Input {...field} placeholder="Email" type="email" />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    name="drivingLicenseNo"
-                    control={form.control}
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Driving License No</FormLabel>
-                        <FormControl>
-                          <Input {...field} placeholder="Driving License No" />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    name="expiry"
-                    control={form.control}
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Expiry Date</FormLabel>
-                        <FormControl>
-                          <Input
-                            {...field}
-                            placeholder="Expiry Date"
-                            type="date"
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    name="adharCardNo"
-                    control={form.control}
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Adhar Card No</FormLabel>
-                        <FormControl>
-                          <Input {...field} placeholder="Adhar Card No" />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    name="bankName"
-                    control={form.control}
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Bank Name</FormLabel>
-                        <FormControl>
-                          <Input {...field} placeholder="Bank Name" />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    name="accountNo"
-                    control={form.control}
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Account No</FormLabel>
-                        <FormControl>
-                          <Input {...field} placeholder="Account No" />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    name="ifscCode"
-                    control={form.control}
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>IFSC Code</FormLabel>
-                        <FormControl>
-                          <Input {...field} placeholder="IFSC Code" />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    name="branch"
-                    control={form.control}
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Branch</FormLabel>
-                        <FormControl>
-                          <Input {...field} placeholder="Branch" />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-                <div className="sm:col-span-2 flex gap-5 justify-end">
-                  <Button type="submit" className="w-full">
-                    Save
-                  </Button>
-                </div>
-              </form>
-            </Form>
-          )}
+                <FormField
+                  name="phoneNumber"
+                  control={form.control}
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Phone Number</FormLabel>
+                      <FormControl>
+                        <Input
+                          {...field}
+                          placeholder="Phone Number"
+                          type="tel"
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  name="email"
+                  control={form.control}
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Email</FormLabel>
+                      <FormControl>
+                        <Input {...field} placeholder="Email" type="email" />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  name="drivingLicenseNo"
+                  control={form.control}
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Driving License No</FormLabel>
+                      <FormControl>
+                        <Input {...field} placeholder="Driving License No" />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  name="expiry"
+                  control={form.control}
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Expiry Date</FormLabel>
+                      <FormControl>
+                        <Input
+                          {...field}
+                          placeholder="Expiry Date"
+                          type="date"
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  name="adharCardNo"
+                  control={form.control}
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Adhar Card No</FormLabel>
+                      <FormControl>
+                        <Input {...field} placeholder="Adhar Card No" />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  name="bankName"
+                  control={form.control}
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Bank Name</FormLabel>
+                      <FormControl>
+                        <Input {...field} placeholder="Bank Name" />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  name="accountNo"
+                  control={form.control}
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Account No</FormLabel>
+                      <FormControl>
+                        <Input {...field} placeholder="Account No" />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  name="ifscCode"
+                  control={form.control}
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>IFSC Code</FormLabel>
+                      <FormControl>
+                        <Input {...field} placeholder="IFSC Code" />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  name="branch"
+                  control={form.control}
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Branch</FormLabel>
+                      <FormControl>
+                        <Input {...field} placeholder="Branch" />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+              <div className="sm:col-span-2 flex gap-5 justify-end">
+                <Button type="submit" className="w-full">
+                  Save
+                </Button>
+              </div>
+            </form>
+          </Form>
         </DialogContent>
       </Dialog>
     </>

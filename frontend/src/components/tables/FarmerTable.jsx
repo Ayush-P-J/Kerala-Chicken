@@ -10,43 +10,45 @@ import { Button } from "../ui/button";
 import { Pencil, Trash2 } from "lucide-react";
 import React from "react";
 
-const DistrictTable = React.memo(({ districts, handleEdit, handleDelete }) => {
+const FarmerTable = React.memo(({ farmers, handleEdit, handleDelete }) => {
   return (
     <Table>
       <TableHeader>
         <TableRow>
           <TableHead className="w-20">Index</TableHead>
-          <TableHead>District Name</TableHead>
-          <TableHead>District Code</TableHead>
+          <TableHead>Farmer Name</TableHead>
+          <TableHead>Farmer Code</TableHead>
+          <TableHead>Supervisor</TableHead>
           <TableHead>Action</TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
-        {districts.length === 0 ? (
+        {farmers.length === 0 ? (
           <TableRow>
-            <TableCell colSpan={4} className="text-center text-xl py-6">
-              No district found
+            <TableCell colSpan={5} className="text-center text-xl py-6">
+              No farmers found
             </TableCell>
           </TableRow>
         ) : (
-          districts.map((district, index) => (
-            <TableRow key={district._id || index}>
+          farmers.map((farmer, index) => (
+            <TableRow key={farmer._id || index}>
               <TableCell>{index + 1}</TableCell>
-              <TableCell>{district.districtName}</TableCell>
-              <TableCell>{district.districtCode}</TableCell>
+              <TableCell>{farmer.farmerName}</TableCell>
+              <TableCell>{farmer.farmerCode}</TableCell>
+              <TableCell>{farmer.supervisorName?.supervisorName}</TableCell>
               <TableCell>
                 <div className="flex items-center gap-2">
                   <Button
                     size="sm"
                     type="button"
-                    onClick={() => handleEdit(district)}
+                    onClick={() => handleEdit(farmer)}
                   >
                     <Pencil />
                   </Button>
                   <Button
                     size="sm"
                     type="button"
-                    onClick={() => handleDelete(district)}
+                    onClick={() => handleDelete(farmer)}
                   >
                     <Trash2 />
                   </Button>
@@ -60,4 +62,4 @@ const DistrictTable = React.memo(({ districts, handleEdit, handleDelete }) => {
   );
 });
 
-export default DistrictTable;
+export default FarmerTable;

@@ -14,14 +14,15 @@ import {
 } from "@/components/ui/card";
 import AlterDistrict from "@/components/forms/district/AlterDistrict";
 import AlterFarmer from "@/components/forms/farmer/AlterFarmer";
+import SearchBar from "@/components/SearchBar";
 export default function Layout() {
-
-  
-
   return (
-    <Card>
+    <Card className="h-[80vh] overflow-auto">
       <CardHeader>
-        <CardTitle>Farmers</CardTitle>
+        <div className="flex items-center justify-between">
+          <CardTitle>Farmers</CardTitle>
+          <SearchBar />
+        </div>
         <CardDescription></CardDescription>
       </CardHeader>
       <CardContent>

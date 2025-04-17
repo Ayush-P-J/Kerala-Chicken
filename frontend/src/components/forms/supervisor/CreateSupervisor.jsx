@@ -13,7 +13,7 @@ import {
 import { Input } from "../../ui/input";
 import { Button } from "@/components/ui/button";
 import { useAppDispatch, useAppSelector } from "@/redux/hooks";
-import { getDistricts } from "@/redux/slices/districtSlice";
+import { getDistricts, getDistrictsName } from "@/redux/slices/districtSlice";
 import { useEffect, useState } from "react";
 import {
   Select,
@@ -28,18 +28,22 @@ import { addSupervisor } from "@/redux/slices/supervisorSlice";
 export const CreateSupervisor = () => {
   const dispatch = useAppDispatch();
 
-  const { loading, districts } = useAppSelector((state) => state.district);
+  const {status, districts } = useAppSelector((state) => state.district);
   const [districtOptions, setDistrictOptions] = useState([]);
+  const debouncedSearchQuery = ""
+  const page = 1
 
   useEffect(() => {
-    dispatch(getDistricts());
+  dispatch(getDistricts({ search: debouncedSearchQuery, page, limit: 5 }));
+    console.log("districts");
+    console.log(districts);
+    
   }, [dispatch]);
 
   useEffect(() => {
     if (districts) {
       setDistrictOptions(districts);
       console.log(districtOptions);
-      console.log(districts);
     }
   }, [districts]);
 

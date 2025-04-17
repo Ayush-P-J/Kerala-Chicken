@@ -4,6 +4,7 @@ import {
   deleteDistrict,
   editDistrict,
   getDistrict,
+  getDistrictsName,
 } from "../controllers/district.controller.js";
 import { authenticateToken } from "../middlewares/jwt.js";
 
@@ -12,6 +13,8 @@ const router = express.Router();
 router.post("/addDistrict", authenticateToken, addDistrict);
 
 router.get("/getDistrict", authenticateToken, getDistrict);
+
+router.get("/getDistrictsName", authenticateToken, getDistrictsName);
 
 router.post("/editDistrict", authenticateToken, editDistrict);
 
