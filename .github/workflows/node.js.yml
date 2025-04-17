@@ -1,0 +1,77 @@
+name: Build and Deploy Frontend + Backend (Self-Hosted)
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build-and-deploy:
+    runs-on: self-hosted
+
+    steps:
+      - name: ⬇️ Checkout Code
+        uses: actions/checkout@v3
+
+      # 🌿 Create frontend .env.local file
+      - name: Frontend .env.local file configuration
+        working-directory: ./frontend
+        run: |
+          cat <<EOF > .env.local
+          AUTH_URL=${{ secrets.AUTH_URL }}
+          AUTH_SECRET=${{ secrets.AUTH_SECRET }}
+          EOF
+
+      - name: 📦 Install Frontend Dependencies
+        working-directory: ./frontend
+        run: npm install --legacy-peer-deps
+
+      - name: 🧱 Build Frontend
+        working-directory: ./frontend
+        run: npm run build
+
+      # 🌿 Create backend .env file
+      - name: Backend .env file configuration
+        working-directory: ./backend
+        run: |
+          cat <<EOF > .env
+          AUTH_SECRET=${{ secrets.AUTH_SECRET }}
+          MONGO_URI=${{ secrets.MONGO_URI }}
+          PORT=${{ secrets.PORT }}
+          EOF
+
+      - name: 📦 Install Backend Dependencies
+        working-directory: ./backend
+        run: npm install
+
+      # 🚀 Run Backend with PM2
+      - name: 🔁 Start or Reload Backend with PM2
+        working-directory: ./backend
+        run: |
+          APP_NAME="backend"
+
+          if pm2 list | grep -q "$APP_NAME"; then
+            pm2 reload "$APP_NAME"
+          else
+            pm2 start npm --name "$APP_NAME" -- run start
+          fi
+
+          pm2 save
+
+      # 🚀 Run Frontend with PM2
+      - name: 🔁 Start or Reload Frontend with PM2
+        working-directory: ./frontend
+        run: |
+          APP_NAME="frontend"
+
+          if pm2 list | grep -q "$APP_NAME"; then
+            pm2 reload "$APP_NAME"
+          else
+            pm2 start npm --name "$APP_NAME" -- run start
+          fi
+
+          pm2 save
+
+      - name: 🔄 Restart Nginx (if needed)
+        run: sudo systemctl restart nginx
