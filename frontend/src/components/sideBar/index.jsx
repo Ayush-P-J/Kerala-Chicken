@@ -17,8 +17,10 @@ import {
   Landmark,
   Camera,
   Contact,
+  LogOutIcon,
 } from "lucide-react";
 import Link from "next/link";
+import logo from "../../../public/chick_go.jpg";
 
 import { Button } from "@/components/ui/button";
 import { signOut } from "next-auth/react";
@@ -36,6 +38,9 @@ import {
 } from "@/components/ui/sidebar";
 import { NavMain } from "./navMain";
 import { NavUser } from "./NavUser";
+import { AspectRatio } from "../ui/aspect-ratio";
+import Image from "next/image";
+import { DropdownMenuItem } from "../ui/dropdown-menu";
 
 const data = {
   user: {
@@ -115,7 +120,21 @@ const data = {
 export function AppSidebar({ ...props }) {
   return (
     <Sidebar collapsible="icon" {...props}>
-      <SidebarHeader className={"h-16"}>
+      <SidebarHeader
+        className={"h-16 border-b flex justify-center items-center"}
+      >
+        <Link href={"/dashboard"}>
+          <div className="flex justify-center ">
+            <Image
+              className="dark:invert object-cover"
+              src="/chick go(2).png"
+              alt="Chick Go"
+              width={115}
+              height={115}
+            />
+          </div>
+        </Link>
+
         {/* <WorkspaceSwitcher teams={data.teams} /> */}
       </SidebarHeader>
       <SidebarContent>
@@ -133,7 +152,14 @@ export function AppSidebar({ ...props }) {
         </SidebarGroup>
       </SidebarContent>
       <div className="flex justify-end">
-        <NavUser user={data.user}/>
+        <Button
+          variant="ghost"
+          className="w-40 gap-2 px-4 py-2 text-sm bg-white hover:bg-muted border text-muted-foreground justify-center mx-auto"
+          onClick={() => signOut()}
+        >
+          <LogOutIcon className="h-4 w-4" />
+          Sign out
+        </Button>
       </div>
       <SidebarFooter>{/* <NavUser user={data.user} /> */}</SidebarFooter>
       <SidebarRail />

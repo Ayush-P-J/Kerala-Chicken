@@ -11,7 +11,7 @@ export function signJwtToken(user) {
     },
     JWT_SECRET,
     {
-      expiresIn: '1h',
+      expiresIn: '1d',
     }
   );
 }

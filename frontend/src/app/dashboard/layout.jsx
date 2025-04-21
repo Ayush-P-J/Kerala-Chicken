@@ -20,10 +20,13 @@ export default function Layout({ children }) {
   const router = useRouter();
 
   useEffect(() => {
+    console.log(status);
+    
     if (status === "unauthenticated") {
-      router.replace("/login");
+      console.log("kjhdsfjk")
+      router.push("/login");
     } else if (status === "authenticated" && session?.user?.role !== "admin") {
-      router.replace("/");
+      router.push("/");
     }
   }, [status, session, router]);
 

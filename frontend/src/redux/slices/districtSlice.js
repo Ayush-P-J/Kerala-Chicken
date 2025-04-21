@@ -21,10 +21,12 @@ export const addDistrict = createAsyncThunk(
       });
       return data.data;
     } catch (error) {
-      const {message} = error.response.data
-      toast.error(message || "Failed to add district. Please try again!")
+      const message =
+        error?.response?.data?.message ||
+        "Failed to add district. Please try again!";
+      toast.error(message);
       console.log(message);
-      
+
       return rejectWithValue(errorMessage(error));
     }
   }
@@ -37,10 +39,10 @@ export const getDistrictsName = createAsyncThunk(
   async (_, { rejectWithValue }) => {
     try {
       const response = await api.get("/getDistrictsName");
-      console.log("name")
+      console.log("name");
       return response.data.data;
     } catch (error) {
-      const {message} = error.response.data
+      const { message } = error?.response?.data;
 
       toast.error(message || "Failed to get districts. Please try again!");
       return rejectWithValue(errorMessage(error));
@@ -63,13 +65,14 @@ export const getDistricts = createAsyncThunk(
         totalPages: response.data.totalPages,
       };
     } catch (error) {
-      const message = error.response?.data?.message || "Failed to get districts. Please try again!";
+      const message =
+        error.response?.data?.message ||
+        "Failed to get districts. Please try again!";
       toast.error(message);
       return rejectWithValue(errorMessage(error));
     }
   }
 );
-
 
 export const editDistrict = createAsyncThunk(
   "district/editDistrict",
@@ -87,7 +90,7 @@ export const editDistrict = createAsyncThunk(
       });
       return data.data;
     } catch (error) {
-      const {message} = error.response.data
+      const { message } = error?.response?.data;
 
       toast.error(message || "Failed to update district. Please try again!");
       return rejectWithValue(errorMessage(error));
@@ -97,7 +100,7 @@ export const editDistrict = createAsyncThunk(
 
 export const deleteDistrict = createAsyncThunk(
   "district/deleteDistrict",
-  async (id,{rejectWithValue}) => {
+  async (id, { rejectWithValue }) => {
     try {
       const data = await api.put(`/deleteDistrict/${id}`);
       toast.success("District deleted successfully!", {
@@ -111,15 +114,14 @@ export const deleteDistrict = createAsyncThunk(
       });
       return data.data;
     } catch (error) {
-      console.log(error)
+      console.log(error);
 
-      const {message} = error.response.data
+      const { message } = error?.response?.data;
       toast.error(message || "Failed to delete district. Please try again!");
       return rejectWithValue(errorMessage(error));
-
     }
   }
-)
+);
 
 const initialState = {
   districts: [],
@@ -131,7 +133,6 @@ const initialState = {
   searchTerm: "",
   limit: 5,
 };
-
 
 export const districtSlice = createSlice({
   name: "district",
@@ -152,7 +153,6 @@ export const districtSlice = createSlice({
         state.status = "failed";
         state.error = action.payload || "Failed to add district";
       })
-
 
       .addCase(getDistricts.pending, (state) => {
         state.status = "loading";
@@ -195,13 +195,13 @@ export const districtSlice = createSlice({
           (d) => d._id === updatedDistrict._id
         );
         if (index !== -1) {
-          state.districts[index] = updatedDistrict; 
+          state.districts[index] = updatedDistrict;
         }
       })
-      .addCase(editDistrict.rejected, (state, action) =>{
+      .addCase(editDistrict.rejected, (state, action) => {
         state.status = "failed";
-        state.error = action?.error?.payload 
-      }) 
+        state.error = action?.error?.payload;
+      })
 
       .addCase(deleteDistrict.pending, (state) => {
         state.status = "loading";
@@ -210,16 +210,17 @@ export const districtSlice = createSlice({
       .addCase(deleteDistrict.fulfilled, (state, action) => {
         state.status = "succeeded";
         const deletedDistrict = action.payload;
-        const index = state.districts.findIndex(d => d._id === deletedDistrict._id);
+        const index = state.districts.findIndex(
+          (d) => d._id === deletedDistrict._id
+        );
         if (index !== -1) {
-          state.districts[index] = deletedDistrict; 
+          state.districts[index] = deletedDistrict;
         }
       })
       .addCase(deleteDistrict.rejected, (state, action) => {
         state.status = "failed";
         state.error = action.payload || "Failed to delete district";
-      })
-      
+      });
   },
 });
 

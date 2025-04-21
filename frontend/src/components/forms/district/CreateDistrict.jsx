@@ -40,7 +40,7 @@ export const CreateDistrict = () => {
 
   const onSubmit = async (formData) => {
     console.log(formData);
-    dispatch(addDistrict(formData))
+    await dispatch(addDistrict(formData)).unwrap();
     form.reset();
   };
 

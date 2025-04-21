@@ -5,6 +5,8 @@ import axios from "axios";
 import api from "./lib/axiosInstance";
 import { toast } from "react-toastify";
 import { errorMessage } from "./helper/errorResponse";
+import jwt from "jsonwebtoken";
+
 
 export const { handlers, auth } = NextAuth({
   secret: process.env.AUTH_SECRET,
@@ -49,8 +51,8 @@ export const { handlers, auth } = NextAuth({
             "Authorize error:",
             error.response?.data || error.message
           );
-          
-          return error
+
+          return error;
         }
       },
     }),
@@ -58,15 +60,27 @@ export const { handlers, auth } = NextAuth({
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
+        token.jwt = signJwtToken(user);
         token.id = user.id;
         token.role = user.role;
         token.email = user.email;
-        token.jwt = signJwtToken(user); 
+        return token;
       }
-
-      return token;
+      // If already logged in, verify token manually
+      try {
+        const decoded = jwt.verify(token.jwt, process.env.AUTH_SECRET); // <-- This checks expiry
+        return token;
+      } catch (error) {
+        console.log("JWT expired:", error.message);
+        // Expired or invalid token, clear it
+        return {};
+      }
     },
     async session({ session, token }) {
+      if (!token || !token.jwt) {
+        return null; // This clears the session on the client
+      }
+      console.log(token);
       if (token) {
         session.user = {
           id: token.id,

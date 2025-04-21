@@ -19,7 +19,7 @@ export const addFarmer = createAsyncThunk(
       });
       return data;
     } catch (error) {
-      const { message } = error.response.data;
+      const { message } = error?.response?.data;
       toast.error(message || "Failed to add farmer. Please try again!");
       return rejectWithValue(errorMessage(error));
     }
@@ -40,7 +40,7 @@ export const getFarmers = createAsyncThunk(
         totalPages: response.data.totalPages,
       };
     } catch (error) {
-      const message = error.response?.data?.message || "Failed to get farmers. Please try again!";
+      const message = error?.response?.data?.message || "Failed to get farmers. Please try again!";
       toast.error(message);
       return rejectWithValue(errorMessage(error));
     }
@@ -63,7 +63,7 @@ export const editFarmer = createAsyncThunk(
       });
       return data;
     } catch (error) {
-      const { message } = error.response.data;
+      const { message } = error?.response?.data;
       toast.error(message || "Failed to update farmer. Please try again!");
       return rejectWithValue(errorMessage(error));
     }
@@ -86,7 +86,7 @@ export const deleteFarmer = createAsyncThunk(
       });
       return data;
     } catch (error) {
-      const { message } = error.response.data;
+      const { message } = error?.response?.data;
       toast.error(message || "Failed to delete farmer. Please try again!");
       return rejectWithValue(errorMessage(error));
     }

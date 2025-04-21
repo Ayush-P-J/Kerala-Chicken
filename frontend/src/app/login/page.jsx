@@ -21,6 +21,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Loader2 } from "lucide-react";
 import { ToastContainer, toast } from "react-toastify";
 import LoadingSpinner from "@/components/loadingSpinner/loadingSpinner";
+import Image from "next/image";
 
 const loginSchema = z.object({
   email: z.string().email("Invalid email"),
@@ -65,7 +66,7 @@ export default function LoginPage() {
 
       if (res?.error) {
         let errorMessage = "Invalid credentials";
-        
+
         // Handle both JSON and string errors
         if (res.error.startsWith("{")) {
           try {
@@ -76,10 +77,10 @@ export default function LoginPage() {
           }
         } else {
           errorMessage =
-          //  res.error === "CredentialsSignin"
-          //   ? 
-            "Invalid email or password"
-            // : res.error;
+            //  res.error === "CredentialsSignin"
+            //   ?
+            "Invalid email or password";
+          // : res.error;
         }
 
         setErrorMsg(errorMessage);
@@ -97,12 +98,20 @@ export default function LoginPage() {
     }
   };
 
-
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100 p-4">
       <ToastContainer />
-      <Card className="w-full max-w-md shadow-xl">
-        <CardContent className="p-6 space-y-6">
+      <Card className="w-full max-w-md shadow-xl ">
+        <CardContent className="p-6 space-y-3">
+          <div className="flex justify-center ">
+            <Image
+              className="dark:invert object-cover"
+              src="/chick go(2).png"
+              alt="Chick Go"
+              width={115}
+              height={115}
+            />
+          </div>
           <h2 className="text-2xl font-bold text-center">Admin Login</h2>
 
           <Form {...form}>

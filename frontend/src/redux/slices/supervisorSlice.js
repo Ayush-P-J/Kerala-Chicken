@@ -19,7 +19,7 @@ export const addSupervisor = createAsyncThunk(
       });
       return data.data;
     } catch (error) {
-      const { message } = error.response.data;
+      const { message } = error?.response?.data;
       toast.error(message || "Failed to add supervisor. Please try again!");
       return rejectWithValue(errorMessage(error));
     }
@@ -34,10 +34,10 @@ export const getSupervisors = createAsyncThunk(
         params: { search, page, limit },
       });
       return {
-        data: response.data.data,
-        total: response.data.total,
-        currentPage: response.data.currentPage,
-        totalPages: response.data.totalPages,
+        data: response?.data?.data,
+        total: response?.data?.total,
+        currentPage: response?.data?.currentPage,
+        totalPages: response?.data?.totalPages,
       };
     } catch (error) {
       const message = error.response?.data?.message || "Failed to get supervisors. Please try again!";
@@ -82,7 +82,7 @@ export const editSupervisor = createAsyncThunk(
       });
       return data.data;
     } catch (error) {
-      const { message } = error.response.data;
+      const { message } = error?.response?.data;
       toast.error(message || "Failed to update supervisor. Please try again!");
       return rejectWithValue(errorMessage(error));
     }
@@ -105,7 +105,7 @@ export const deleteSupervisor = createAsyncThunk(
       });
       return data.data;
     } catch (error) {
-      const { message } = error.response.data;
+      const { message } = error?.response?.data;
       toast.error(message || "Failed to delete supervisor. Please try again!");
       return rejectWithValue(errorMessage(error));
     }
