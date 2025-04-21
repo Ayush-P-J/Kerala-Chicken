@@ -34,7 +34,7 @@ export const CreateSupervisor = () => {
   const page = 1
 
   useEffect(() => {
-  dispatch(getDistricts({ search: debouncedSearchQuery, page, limit: 5 }));
+  dispatch(getDistricts({ search: debouncedSearchQuery, page, limit: Infinity }));
     console.log("districts");
     console.log(districts);
     
