@@ -22,7 +22,7 @@ jobs:
           AUTH_URL=${{ secrets.AUTH_URL }}
           AUTH_SECRET=${{ secrets.AUTH_SECRET }}
           NEXT_PUBLIC_API_BASE_URL=${{ secrets.NEXT_PUBLIC_API_BASE_URL }}
-          JWT_EXPIRE_TIME={{ secrets.JWT_EXPIRE_TIME }}
+          JWT_EXPIRE_TIME=${{ secrets.JWT_EXPIRE_TIME }}
           EOF
 
       - name: 📦 Install Frontend Dependencies
