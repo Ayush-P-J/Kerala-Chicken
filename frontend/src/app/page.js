@@ -1,5 +1,7 @@
+"use client";
 
 import Image from "next/image";
+import { signOut } from "next-auth/react";
 
 export default function Home() {
   return (
@@ -98,6 +100,7 @@ export default function Home() {
           />
           Go to nextjs.org →
         </a>
+        <button onClick={() => signOut()}>Log out</button>
       </footer>
     </div>
   );

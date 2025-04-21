@@ -20,19 +20,16 @@ export default function Layout({ children }) {
   const router = useRouter();
 
   useEffect(() => {
-    console.log(status);
+
     
     if (status === "unauthenticated") {
-      console.log("kjhdsfjk")
       router.push("/login");
     } else if (status === "authenticated" && session?.user?.role !== "admin") {
-      router.push("/");
+      <LoadingSpinner />;
+      return router.push("/");
     }
   }, [status, session, router]);
 
-  if (status !== "authenticated" || session?.user?.role !== "admin") {
-    return <LoadingSpinner />;
-  }
 
   return (
       <SearchProvider>

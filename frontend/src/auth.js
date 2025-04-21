@@ -20,6 +20,8 @@ export const { handlers, auth } = NextAuth({
         try {
           const { email, password } = credentials;
 
+          console.log(credentials)
+
           // if (email === 'admin@gmail.com' && password === 'admin') {
           //     return {
           //         id: '1',
@@ -35,6 +37,8 @@ export const { handlers, auth } = NextAuth({
               password,
             }
           );
+
+          console.log(response)
 
           if (response.data.success) {
             const { data } = response.data;
@@ -52,7 +56,7 @@ export const { handlers, auth } = NextAuth({
             error.response?.data || error.message
           );
 
-          return error;
+          return null;
         }
       },
     }),

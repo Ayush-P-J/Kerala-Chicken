@@ -6,39 +6,57 @@ export const login = async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    console.log("Login request received:", req.body);
+    // console.log("🔐 Login request received:", req.body);
 
     if (!email || !password) {
-      return res
-        .status(400)
-        .json({ message: "Email and password are required", success: false });
+      return res.status(400).json({
+        message: "Email and password are required",
+        success: false,
+      });
     }
 
-    const user = await User.findOne({ email, isDeleted: false });
+    const user = await User.findOne({email})
 
-    if (!user) {
-      return res.status(404).json({ message: "User not found!", success: false });
-    }
+    console.log(user)
 
-    // ✅ Correct bcrypt.compare usage: (plain, hash)
-    const isPasswordValid = await bcrypt.compare(password, user.password);
+    if(!user)return res.status(400).json({message:'Invalid email or password',success:false})
 
-    if (!isPasswordValid) {
-      return res
-        .status(401)
-        .json({ message: "Invalid credentials", success: false });
-    }
 
-    const userData = {
-      id: user._id,
-      email: user.email,
-      role: user.role,
-    };
 
-    return res
-      .status(200)
-      .json({ message: "Login successful", success: true, data: userData });
+    
+    // Check if an admin already exists
+
+
+      const isPasswordValid = await bcrypt.compare(password, user.password);
+      if (!isPasswordValid) {
+        return res.status(401).json({
+          message: "Invalid credentials",
+          success: false,
+        });
+      }
+
+      return res.status(200).json({
+        message: "Login successful",
+        success: true,
+        data: {name:user.name,
+          email:user.email,
+          role:user.role,
+          id:user._id},
+      });
+    
+
+    // No admin exists yet – create one with the credentials
+    // const hashedPassword = await bcrypt.hash(password, 10);
+    // const newAdmin = await User.create({
+    //   email,
+    //   password: hashedPassword,
+    //   role: "admin",
+    // });
+
+    // console.log("✅ New admin created:", newAdmin.email);
+
   } catch (error) {
+    console.error("❌ Error in login API:", error.message);
     return errorResponse(res, error);
   }
 };
