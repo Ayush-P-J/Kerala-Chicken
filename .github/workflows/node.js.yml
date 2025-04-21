@@ -21,6 +21,7 @@ jobs:
           cat <<EOF > .env.local
           AUTH_URL=${{ secrets.AUTH_URL }}
           AUTH_SECRET=${{ secrets.AUTH_SECRET }}
+          NEXT_PUBLIC_API_BASE_URL=${{ secrets.NEXT_PUBLIC_API_BASE_URL }}
           EOF
 
       - name: 📦 Install Frontend Dependencies
