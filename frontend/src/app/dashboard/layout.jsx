@@ -23,7 +23,7 @@ export default function Layout({ children }) {
 
     
     if (status === "unauthenticated") {
-      router.push("/login");
+      router.push("/");
     } else if (status === "authenticated" && session?.user?.role !== "admin") {
       <LoadingSpinner />;
       return router.push("/");

@@ -70,11 +70,11 @@ export default function AlterDistrict() {
 const [debouncedSearchQuery] = useDebounce(searchQuery, 500);
 
 useEffect(() => {
-  dispatch(getDistricts({ search: debouncedSearchQuery, page, limit: 5 }));
+  dispatch(getDistricts({ search: debouncedSearchQuery, page }));
 }, [dispatch]);
 
 useEffect(() => {
-  dispatch(getDistricts({ search: debouncedSearchQuery, page, limit: 5 }));
+  dispatch(getDistricts({ search: debouncedSearchQuery, page }));
 }, [dispatch, debouncedSearchQuery, page]);
 
 
@@ -102,10 +102,11 @@ useEffect(() => {
       confirmButtonColor: "#d33",
       cancelButtonColor: "#3085d6",
       confirmButtonText: "Yes, delete it!",
-    }).then((result) => {
+    }).then(async (result) => {
       if (result.isConfirmed) {
         const id = district._id;
-        dispatch(deleteDistrict(id));
+        await dispatch(deleteDistrict(id)).unwrap();
+        dispatch(getDistricts({ search: debouncedSearchQuery, page }));
       }
     });
   };
@@ -118,7 +119,7 @@ useEffect(() => {
     };
     await dispatch(editDistrict(updatedDistrict)).unwrap();
     setOpen(false);
-    dispatch(getDistricts({ search: debouncedSearchQuery, page, limit: 5 }));
+    dispatch(getDistricts({ search: debouncedSearchQuery, page }));
   };
 
   return (
@@ -128,7 +129,6 @@ useEffect(() => {
         handleEdit={handleEdit}
         handleDelete={handleDelete}
       />
-
       {/* Pagination */}
       {totalPages > 1 && (
         <div className="flex items-center justify-center gap-2 pt-4">

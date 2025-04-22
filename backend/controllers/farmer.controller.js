@@ -68,7 +68,7 @@ export const getFarmers = async (req, res) => {
     const {
       search = "",
       page = 1,
-      limit = 10,
+      limit = 20,
       sortField = "createdAt",
       sortOrder = "desc",
     } = req.query;

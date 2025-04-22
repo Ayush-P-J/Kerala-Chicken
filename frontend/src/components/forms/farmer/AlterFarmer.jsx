@@ -67,7 +67,7 @@ export default function AlterFarmer() {
   const [debouncedSearchQuery] = useDebounce(searchQuery, 500);
 
   useEffect(() => {
-    dispatch(getFarmers({ search: debouncedSearchQuery, page, limit: 5 }));
+    dispatch(getFarmers({ search: debouncedSearchQuery, page}));
   }, []);
 
   useEffect(() => {
@@ -104,7 +104,7 @@ export default function AlterFarmer() {
 
 
   useEffect(() => {
-    dispatch(getFarmers({ search: debouncedSearchQuery, page, limit: 5 }));
+    dispatch(getFarmers({ search: debouncedSearchQuery, page }));
   }, [dispatch, debouncedSearchQuery, page]);
 
   if (status === "loading") {
@@ -139,7 +139,7 @@ export default function AlterFarmer() {
     };
     await dispatch(editFarmer(updatedFarmer)).unwrap();
     setOpen(false);
-    dispatch(getFarmers({ search: debouncedSearchQuery, page, limit: 5 }));
+    dispatch(getFarmers({ search: debouncedSearchQuery, page }));
   };
 
   const handleDelete = (farmer) => {
@@ -155,7 +155,7 @@ export default function AlterFarmer() {
       if (result.isConfirmed) {
         const id = farmer._id;
         await dispatch(deleteFarmer(id)).unwrap();
-        dispatch(getFarmers({ search: debouncedSearchQuery, page, limit: 5 }));
+        dispatch(getFarmers({ search: debouncedSearchQuery, page}));
       }
     });
   };

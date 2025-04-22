@@ -155,7 +155,9 @@ export function AppSidebar({ ...props }) {
         <Button
           variant="ghost"
           className="w-40 gap-2 px-4 py-2 text-sm bg-white hover:bg-muted border text-muted-foreground justify-center mx-auto"
-          onClick={() => signOut()}
+          onClick={() => signOut({
+            callbackUrl: "/", // redirect to home after logout
+          })}
         >
           <LogOutIcon className="h-4 w-4" />
           Sign out

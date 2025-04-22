@@ -20,7 +20,7 @@ export const { handlers, auth } = NextAuth({
         try {
           const { email, password } = credentials;
 
-          console.log(credentials)
+          // console.log(credentials)
 
           // if (email === 'admin@gmail.com' && password === 'admin') {
           //     return {
@@ -31,14 +31,14 @@ export const { handlers, auth } = NextAuth({
           // }
 
           const response = await axios.post(
-            "http://localhost:4000/api/auth/login",
+            `${process.env.NEXT_PUBLIC_API_BASE_URL}auth/login`,
             {
               email,
               password,
             }
           );
 
-          console.log(response)
+          // console.log(response)
 
           if (response.data.success) {
             const { data } = response.data;
@@ -96,6 +96,11 @@ export const { handlers, auth } = NextAuth({
       return session;
     },
     async redirect({ url, baseUrl }) {
+      console.log("baseUrl") 
+      console.log(url) 
+      if (url === "/api/auth/signout" || url.includes("signout")) {
+        return baseUrl; // back to home
+      }
       return `${baseUrl}/dashboard`;
     },
   },

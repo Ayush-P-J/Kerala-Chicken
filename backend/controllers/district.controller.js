@@ -70,7 +70,7 @@ export const getDistrict = async (req, res) => {
     const { 
       search = "", 
       page = 1, 
-      limit = 10,
+      limit = 20,
       sortField = "createdAt",
       sortOrder = "desc",
     } = req.query;
@@ -100,6 +100,8 @@ export const getDistrict = async (req, res) => {
         .limit(parseInt(limit)),
       District.countDocuments(query)
     ]);
+
+    console.log(total)
 
     return res.status(200).json({
       success: true,

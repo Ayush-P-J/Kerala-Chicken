@@ -98,7 +98,7 @@ export const getSupervisor = async (req, res) => {
     const { 
       search = "", 
       page = 1, 
-      limit = 10,
+      limit = 20, 
       sortField = "createdAt",  // Default sort field
       sortOrder = "desc",      // Default sort order
     } = req.query;

@@ -90,12 +90,12 @@ export default function AlterSupervisor() {
   }, [districts]);
 
     useEffect(() => {
-      dispatch(getDistricts());
+      dispatch(getDistricts({ search: debouncedSearchQuery, page, limit: Infinity }));
     }, []);
 
   useEffect(() => {
     console.log("supervisors");
-    dispatch(getSupervisors({ search: debouncedSearchQuery, page, limit: 5 }));
+    dispatch(getSupervisors({ search: debouncedSearchQuery, page }));
   }, [dispatch]);
 
   
@@ -104,7 +104,7 @@ export default function AlterSupervisor() {
 
 
   useEffect(() => {
-    dispatch(getSupervisors({ search: debouncedSearchQuery, page, limit: 5 }));
+    dispatch(getSupervisors({ search: debouncedSearchQuery, page}));
   }, [dispatch, debouncedSearchQuery, page]);
 
   if (status === "loading") {
@@ -145,7 +145,7 @@ export default function AlterSupervisor() {
         const id = supervisor._id;
         await dispatch(deleteSupervisor(id)).unwrap();
         dispatch(
-          getSupervisors({ search: debouncedSearchQuery, page, limit: 5 })
+          getSupervisors({ search: debouncedSearchQuery, page })
         );
       }
     });
@@ -162,7 +162,7 @@ export default function AlterSupervisor() {
 
     setOpen(false);
 
-    dispatch(getSupervisors({ search: debouncedSearchQuery, page, limit: 5 }));
+    dispatch(getSupervisors({ search: debouncedSearchQuery, page }));
   };
 
   return (

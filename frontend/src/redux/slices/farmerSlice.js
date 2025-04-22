@@ -35,9 +35,9 @@ export const getFarmers = createAsyncThunk(
       });
       return {
         data: response.data.data,
-        total: response.data.total,
-        currentPage: response.data.currentPage,
-        totalPages: response.data.totalPages,
+        total: response.data.pagination.total,
+        currentPage: response.data.pagination.currentPage,
+        totalPages: response.data.pagination.totalPages,
       };
     } catch (error) {
       const message = error?.response?.data?.message || "Failed to get farmers. Please try again!";

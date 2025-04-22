@@ -57,12 +57,13 @@ export const getDistricts = createAsyncThunk(
       const response = await api.get("/getDistrict", {
         params: { search, page, limit },
       });
+      console.log(response)
 
       return {
         data: response.data.data,
-        total: response.data.total,
-        currentPage: response.data.currentPage,
-        totalPages: response.data.totalPages,
+        total: response.data.pagination.total,
+        currentPage: response.data.pagination.currentPage,
+        totalPages: response.data.pagination.totalPages,
       };
     } catch (error) {
       const message =
@@ -162,7 +163,7 @@ export const districtSlice = createSlice({
         state.status = "succeeded";
         state.districts = action.payload.data;
         state.total = action.payload.total;
-        state.totalPages = Math.ceil(action.payload.total / state.limit);
+        state.totalPages = action.payload.totalPages;
       })
       .addCase(getDistricts.rejected, (state, action) => {
         state.status = "failed";
