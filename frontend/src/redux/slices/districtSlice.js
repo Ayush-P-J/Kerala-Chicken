@@ -52,7 +52,7 @@ export const getDistrictsName = createAsyncThunk(
 
 export const getDistricts = createAsyncThunk(
   "district/getDistrict",
-  async ({ search = "", page = 1, limit = 10 }, { rejectWithValue }) => {
+  async ({ search = "", page = 1, limit = 20 }, { rejectWithValue }) => {
     try {
       const response = await api.get("/getDistrict", {
         params: { search, page, limit },

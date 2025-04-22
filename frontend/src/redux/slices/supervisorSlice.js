@@ -28,7 +28,7 @@ export const addSupervisor = createAsyncThunk(
 
 export const getSupervisors = createAsyncThunk(
   "supervisor/getSupervisors",
-  async ({ search = "", page = 1, limit = 10 }, { rejectWithValue }) => {
+  async ({ search = "", page = 1, limit = 20 }, { rejectWithValue }) => {
     try {
       const response = await api.get("/getSupervisor", {
         params: { search, page, limit },

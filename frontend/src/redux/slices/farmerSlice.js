@@ -28,7 +28,7 @@ export const addFarmer = createAsyncThunk(
 
 export const getFarmers = createAsyncThunk(
   "farmer/getFarmers",
-  async ({ search = "", page = 1, limit = 10 }, { rejectWithValue }) => {
+  async ({ search = "", page = 1, limit = 20 }, { rejectWithValue }) => {
     try {
       const response = await api.get("/getFarmer", {
         params: { search, page, limit },
