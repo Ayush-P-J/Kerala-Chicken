@@ -74,4 +74,10 @@ export const supervisorSchema = z.object({
     .min(2, { message: "Branch name must be at least 2 characters" })
     .optional()
     .or(z.literal("")),
+
+  panNumber: z
+    .string()
+    .regex(/^[A-Z]{5}[0-9]{4}[A-Z]$/, { message: "Invalid PAN number format" })
+    .optional()
+    .or(z.literal("")),
 });

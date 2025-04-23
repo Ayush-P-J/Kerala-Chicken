@@ -16,7 +16,10 @@ import { Button } from "@/components/ui/button";
 import { farmerSchema } from "@/zodSchema/farmerSchema";
 import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 import { addFarmer } from "@/redux/slices/farmerSlice";
-import { getSupervisors, getSupervisorsName } from "@/redux/slices/supervisorSlice";
+import {
+  getSupervisors,
+  getSupervisorsName,
+} from "@/redux/slices/supervisorSlice";
 import { useEffect, useState } from "react";
 import {
   Select,
@@ -59,6 +62,7 @@ export const CreateFarmer = () => {
       branch: "",
       address: "",
       pincode: "",
+      panNumber: "",
     },
   });
 
@@ -122,7 +126,7 @@ export const CreateFarmer = () => {
                 >
                   <FormControl>
                     <SelectTrigger className="w-full">
-                      <SelectValue placeholder="Select District" />
+                      <SelectValue placeholder="Select Supervisor" />
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent className="w-full">
@@ -252,6 +256,20 @@ export const CreateFarmer = () => {
                 <FormLabel>Pincode</FormLabel>
                 <FormControl>
                   <Input {...field} placeholder="Pincode" />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            name="panNumber"
+            control={form.control}
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>PAN Number</FormLabel>
+                <FormControl>
+                  <Input {...field} placeholder="PAN Number" />
                 </FormControl>
                 <FormMessage />
               </FormItem>

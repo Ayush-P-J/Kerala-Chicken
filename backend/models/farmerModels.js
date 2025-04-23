@@ -19,7 +19,7 @@ const farmerSchema = new mongoose.Schema(
     district: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "District",
-      required: false,      
+      required: false,
     },
     phone: {
       type: String,
@@ -54,6 +54,10 @@ const farmerSchema = new mongoose.Schema(
       required: false,
     },
     pincode: {
+      type: String,
+      required: false,
+    },
+    panNumber: {
       type: String,
       required: false,
     },

@@ -28,16 +28,17 @@ import { addSupervisor } from "@/redux/slices/supervisorSlice";
 export const CreateSupervisor = () => {
   const dispatch = useAppDispatch();
 
-  const {status, districts } = useAppSelector((state) => state.district);
+  const { status, districts } = useAppSelector((state) => state.district);
   const [districtOptions, setDistrictOptions] = useState([]);
-  const debouncedSearchQuery = ""
-  const page = 1
+  const debouncedSearchQuery = "";
+  const page = 1;
 
   useEffect(() => {
-  dispatch(getDistricts({ search: debouncedSearchQuery, page, limit: Infinity }));
+    dispatch(
+      getDistricts({ search: debouncedSearchQuery, page, limit: Infinity })
+    );
     console.log("districts");
     console.log(districts);
-    
   }, [dispatch]);
 
   useEffect(() => {
@@ -62,6 +63,7 @@ export const CreateSupervisor = () => {
       accountNo: "",
       ifscCode: "",
       branch: "",
+      panNumber: "",
     },
   });
 
@@ -246,6 +248,20 @@ export const CreateSupervisor = () => {
                 <FormLabel>Branch</FormLabel>
                 <FormControl>
                   <Input {...field} placeholder="Branch" />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            name="panNumber"
+            control={form.control}
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>PAN Number</FormLabel>
+                <FormControl>
+                  <Input {...field} placeholder="PAN Number" />
                 </FormControl>
                 <FormMessage />
               </FormItem>

@@ -1,22 +1,16 @@
 import { z } from "zod";
 
 export const farmerSchema = z.object({
-  farmerCode: z
-    .string()
-    .min(1, { message: "Farmer code is required" })
-    .trim(),
+  farmerCode: z.string().min(1, { message: "Farmer code is required" }).trim(),
 
-  farmerName: z
-    .string()
-    .min(1, { message: "Farmer name is required" })
-    .trim(),
+  farmerName: z.string().min(1, { message: "Farmer name is required" }).trim(),
 
   supervisorName: z
     .string()
     .min(1, { message: "Supervisor name is required" })
     .trim(),
 
-    phone: z
+  phone: z
     .string()
     .min(10, { message: "Phone number must be at least 10 digits" })
     .max(15, { message: "Phone number must be at most 15 digits" })
@@ -68,6 +62,12 @@ export const farmerSchema = z.object({
   pincode: z
     .string()
     .regex(/^\d{6}$/, { message: "Pincode must be 6 digits" })
+    .optional()
+    .or(z.literal("")),
+
+  panNumber: z
+    .string()
+    .regex(/^[A-Z]{5}[0-9]{4}[A-Z]$/, { message: "Invalid PAN number format" })
     .optional()
     .or(z.literal("")),
 });

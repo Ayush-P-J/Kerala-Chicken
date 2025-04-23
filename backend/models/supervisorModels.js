@@ -52,6 +52,9 @@ const SupervisorSchema = new mongoose.Schema(
       type: String,
       required: false,
     },
+    panNumber: {
+      type: String,
+    },
     isDeleted: {
       type: Boolean,
       default: false,
