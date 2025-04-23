@@ -154,7 +154,7 @@ export function AppSidebar({ ...props }) {
       <div className="flex justify-end">
         <Button
           variant="ghost"
-          className="w-40 gap-2 px-4 py-2 text-sm bg-destructive hover:bg-destructive/80 border text-white justify-center mx-auto cursor-pointer"
+          className="w-40 gap-2 px-4 py-2 text-sm bg-destructive hover:bg-destructive/80 border text-white hover:text-white justify-center mx-auto cursor-pointer"
           onClick={() =>
             signOut({
               callbackUrl: "/", // redirect to home after logout
