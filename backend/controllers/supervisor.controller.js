@@ -137,6 +137,7 @@ export const getSupervisor = async (req, res) => {
 
     console.log("supervisors")
     console.log(supervisors)
+    console.log(total)
 
     return res.status(200).json({
       success: true,

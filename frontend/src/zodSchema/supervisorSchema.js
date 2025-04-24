@@ -34,13 +34,13 @@ export const supervisorSchema = z.object({
     .optional()
     .or(z.literal("")),
 
-  expiry: z
-    .string()
-    .regex(/^\d{4}-\d{2}-\d{2}$/, {
-      message: "Expiry date must be in YYYY-MM-DD format",
-    })
-    .optional()
-    .or(z.literal("")),
+  // expiry: z
+  //   .string()
+  //   .regex(/^\d{4}-\d{2}-\d{2}$/, {
+  //     message: "Expiry date must be in YYYY-MM-DD format",
+  //   })
+  //   .optional()
+  //   .or(z.literal("")),
 
   adharCardNo: z
     .string()

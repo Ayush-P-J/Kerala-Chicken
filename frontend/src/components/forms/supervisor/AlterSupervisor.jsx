@@ -123,7 +123,7 @@ export default function AlterSupervisor() {
       phoneNumber: supervisor.phoneNumber || "",
       email: supervisor.email || "",
       drivingLicenseNo: supervisor.drivingLicenseNo || "",
-      expiry: supervisor.expiry || "",
+      // expiry: supervisor.expiry || "",
       adharCardNo: supervisor.adharCardNo || "",
       bankName: supervisor.bankName || "",
       accountNo: supervisor.accountNo || "",
@@ -307,7 +307,7 @@ export default function AlterSupervisor() {
                     </FormItem>
                   )}
                 />
-                <FormField
+                {/* <FormField
                   name="expiry"
                   control={form.control}
                   render={({ field }) => (
@@ -330,7 +330,7 @@ export default function AlterSupervisor() {
                       <FormMessage />
                     </FormItem>
                   )}
-                />
+                /> */}
                 <FormField
                   name="adharCardNo"
                   control={form.control}

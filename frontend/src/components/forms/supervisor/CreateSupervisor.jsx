@@ -57,7 +57,7 @@ export const CreateSupervisor = () => {
       phoneNumber: "",
       email: "",
       drivingLicenseNo: "",
-      expiry: "",
+      // expiry: "",
       adharCardNo: "",
       bankName: "",
       accountNo: "",
@@ -175,7 +175,7 @@ export const CreateSupervisor = () => {
               </FormItem>
             )}
           />
-          <FormField
+          {/* <FormField
             name="expiry"
             control={form.control}
             render={({ field }) => (
@@ -187,7 +187,7 @@ export const CreateSupervisor = () => {
                 <FormMessage />
               </FormItem>
             )}
-          />
+          /> */}
           <FormField
             name="adharCardNo"
             control={form.control}
