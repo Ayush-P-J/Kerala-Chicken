@@ -111,7 +111,7 @@ export const CreateFarmer = () => {
               <FormItem className="w-full">
                 <FormLabel>Supervisor</FormLabel>
                 <Select
-                  onValueChange={(value) => {
+                  value={(value) => {
                     field.onChange(value); // Update the form value
                     // Find the selected supervisor and set districtId
                     const selectedSupervisor = supervisorOption.find(
