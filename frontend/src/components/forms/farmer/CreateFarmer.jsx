@@ -104,16 +104,15 @@ export const CreateFarmer = () => {
             )}
           />
           <FormField
-            className={"w-full"}
             name="supervisorName"
             control={form.control}
             render={({ field }) => (
               <FormItem className="w-full">
                 <FormLabel>Supervisor</FormLabel>
                 <Select
-                  value={(value) => {
+                  value={field.value}
+                  onValueChange={(value) => {
                     field.onChange(value); // Update the form value
-                    // Find the selected supervisor and set districtId
                     const selectedSupervisor = supervisorOption.find(
                       (s) => s._id === value
                     );
@@ -121,8 +120,6 @@ export const CreateFarmer = () => {
                       setDistrictId(selectedSupervisor.districtName._id);
                     }
                   }}
-                  defaultValue={field.value}
-                  className="w-full"
                 >
                   <FormControl>
                     <SelectTrigger className="w-full">
@@ -130,12 +127,9 @@ export const CreateFarmer = () => {
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent className="w-full">
-                    {supervisorOption.map((supervisor, index) => (
-                      <SelectItem
-                        key={supervisor?._id || index}
-                        value={supervisor?._id}
-                      >
-                        {supervisor?.supervisorName}
+                    {supervisorOption.map((supervisor) => (
+                      <SelectItem key={supervisor._id} value={supervisor._id}>
+                        {supervisor.supervisorName}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -144,6 +138,7 @@ export const CreateFarmer = () => {
               </FormItem>
             )}
           />
+
           <FormField
             name="phone"
             control={form.control}
