@@ -118,8 +118,9 @@ export const getSupervisor = async (req, res) => {
 
     // Sort configuration
     const sort = { [sortField]: sortOrder === "desc" ? -1 : 1 };
-
+    
     const skip = (parseInt(page) - 1) * parseInt(limit);
+    console.log("supervisors")
 
     const [supervisors, total] = await Promise.all([
       Supervisor.find(query)
@@ -133,6 +134,9 @@ export const getSupervisor = async (req, res) => {
         .then(results => results.filter(s => s.districtName)), // Filter out supervisors with deleted districts
       Supervisor.countDocuments(query),
     ]);
+
+    console.log("supervisors")
+    console.log(supervisors)
 
     return res.status(200).json({
       success: true,

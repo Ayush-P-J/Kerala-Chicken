@@ -27,7 +27,11 @@ import { Input } from "../../ui/input";
 
 import { useEffect, useState } from "react";
 import { useAppDispatch, useAppSelector } from "@/redux/hooks";
-import { editDistrict, getDistricts, getDistrictsName } from "@/redux/slices/districtSlice";
+import {
+  editDistrict,
+  getDistricts,
+  getDistrictsName,
+} from "@/redux/slices/districtSlice";
 import {
   Dialog,
   DialogContent,
@@ -62,7 +66,7 @@ export default function AlterSupervisor() {
   const [open, setOpen] = useState(false);
   const [selectedSupervisor, setSelectedSupervisor] = useState(null);
   const [page, setPage] = useState(1);
-  
+
   const [debouncedSearchQuery] = useDebounce(searchQuery, 500);
   const [districtOptions, setDistrictOptions] = useState([]);
   const form = useForm({
@@ -84,27 +88,26 @@ export default function AlterSupervisor() {
   });
 
   useEffect(() => {
-      setDistrictOptions(districts);
-      // console.log(districtOptions);
-      // console.log(districts);
+    setDistrictOptions(districts);
+    // console.log(districtOptions);
+    // console.log(districts);
   }, [districts]);
 
-    useEffect(() => {
-      dispatch(getDistricts({ search: debouncedSearchQuery, page, limit: Infinity }));
-    }, []);
+  useEffect(() => {
+    dispatch(
+      getDistricts({ search: debouncedSearchQuery, page, limit: Infinity })
+    );
+  }, []);
 
   useEffect(() => {
     console.log("supervisors");
     dispatch(getSupervisors({ search: debouncedSearchQuery, page }));
   }, [dispatch]);
 
-  
-
   const { reset } = form; // Destructure reset function
 
-
   useEffect(() => {
-    dispatch(getSupervisors({ search: debouncedSearchQuery, page}));
+    dispatch(getSupervisors({ search: debouncedSearchQuery, page }));
   }, [dispatch, debouncedSearchQuery, page]);
 
   if (status === "loading") {
@@ -144,9 +147,7 @@ export default function AlterSupervisor() {
       if (result.isConfirmed) {
         const id = supervisor._id;
         await dispatch(deleteSupervisor(id)).unwrap();
-        dispatch(
-          getSupervisors({ search: debouncedSearchQuery, page })
-        );
+        dispatch(getSupervisors({ search: debouncedSearchQuery, page }));
       }
     });
   };
@@ -315,8 +316,15 @@ export default function AlterSupervisor() {
                       <FormControl>
                         <Input
                           {...field}
-                          placeholder="Expiry Date"
                           type="date"
+                          value={
+                            field.value
+                              ? new Date(field.value)
+                                  .toISOString()
+                                  .split("T")[0]
+                              : ""
+                          }
+                          onChange={(e) => field.onChange(e.target.value)}
                         />
                       </FormControl>
                       <FormMessage />
