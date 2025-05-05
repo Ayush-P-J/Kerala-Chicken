@@ -85,7 +85,7 @@ export const getDistrict = async (req, res) => {
       query.$or = [
         { districtName: { $regex: search, $options: "i" } },
         { districtCode: { $regex: search, $options: "i" } }
-      ];
+      ];districtCode
     }
 
     // Pagination calculations

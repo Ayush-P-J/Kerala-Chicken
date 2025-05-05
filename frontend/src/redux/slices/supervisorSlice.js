@@ -114,7 +114,8 @@ export const deleteSupervisor = createAsyncThunk(
 
 const initialState = {
   supervisors: [],
-  status: "idle", // 'idle' | 'loading' | 'succeeded' | 'failed'
+  supervisorNames: [], 
+  status: "idle", 
   error: null,
   total: 0,
   currentPage: 1,
@@ -146,6 +147,7 @@ export const supervisorSlice = createSlice({
       .addCase(getSupervisors.pending, (state) => {
         state.status = "loading";
         state.error = null;
+        state.supervisors = []; // reset for clean transition
       })
       .addCase(getSupervisors.fulfilled, (state, action) => {
         state.status = "succeeded";
@@ -164,8 +166,9 @@ export const supervisorSlice = createSlice({
       })
       .addCase(getSupervisorsName.fulfilled, (state, action) => {
         state.status = "succeeded";
-        state.supervisors = action.payload.data;
+        state.supervisorNames = action.payload.data;
       })
+      
       .addCase(getSupervisorsName.rejected, (state, action) => {
         state.status = "failed";
         state.error = action.payload || "Something went wrong!";

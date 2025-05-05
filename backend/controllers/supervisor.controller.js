@@ -91,23 +91,83 @@ export const getSupervisorsName = async (req, res) => {
   }
 };
 
+// export const getSupervisor = async (req, res) => {
+//   try {
+//     console.log("get supervisor");
+
+//     const { 
+//       search = "", 
+//       page = 1, 
+//       limit = 20, 
+//       sortField = "createdAt",  // Default sort field
+//       sortOrder = "desc",      // Default sort order
+//     } = req.query;
+
+//     const query = {
+//       isDeleted: false,
+//     };
+
+//     // Apply search if present
+//     if (search) {
+//       query.$or = [
+//         { supervisorName: { $regex: search, $options: "i" } },
+//         { supervisorCode: { $regex: search, $options: "i" } },
+//       ];
+//     }
+
+
+//     // Sort configuration
+//     const sort = { [sortField]: sortOrder === "desc" ? -1 : 1 };
+    
+//     const skip = (parseInt(page) - 1) * parseInt(limit);
+//     console.log("supervisors")
+
+//     const [supervisors, total] = await Promise.all([
+//       Supervisor.find(query)
+//         .populate({
+//           path: "districtName",
+//           match: { isDeleted: false }
+//         })
+//         .sort(sort)  // Added sorting here
+//         .skip(skip)
+//         .limit(parseInt(limit))
+//         .then(results => results.filter(s => s.districtName.isDeleted === false)), // Filter out supervisors with deleted districts
+//       Supervisor.countDocuments(query),
+//     ]);
+
+//     console.log("supervisors")
+//     console.log(supervisors)
+//     console.log(total)
+
+//     return res.status(200).json({
+//       success: true,
+//       message: "Supervisors retrieved successfully.",
+//       data: supervisors,
+//       total,
+//       currentPage: parseInt(page),
+//       totalPages: Math.ceil(total / parseInt(limit)),
+//     });
+//   } catch (error) {
+//     console.error("Error fetching supervisors:", error);
+//     return errorResponse(res, error);
+//   }
+// };
 export const getSupervisor = async (req, res) => {
   try {
-    console.log("get supervisor");
-
     const { 
       search = "", 
       page = 1, 
       limit = 20, 
-      sortField = "createdAt",  // Default sort field
-      sortOrder = "desc",      // Default sort order
+      sortField = "createdAt",
+      sortOrder = "desc",
     } = req.query;
 
+    // Base query
     const query = {
       isDeleted: false,
     };
 
-    // Apply search if present
+    // Search functionality
     if (search) {
       query.$or = [
         { supervisorName: { $regex: search, $options: "i" } },
@@ -115,29 +175,36 @@ export const getSupervisor = async (req, res) => {
       ];
     }
 
-
     // Sort configuration
     const sort = { [sortField]: sortOrder === "desc" ? -1 : 1 };
-    
     const skip = (parseInt(page) - 1) * parseInt(limit);
-    console.log("supervisors")
 
-    const [supervisors, total] = await Promise.all([
-      Supervisor.find(query)
-        .populate({
-          path: "districtName",
-          match: { isDeleted: false }
-        })
-        .sort(sort)  // Added sorting here
-        .skip(skip)
-        .limit(parseInt(limit))
-        .then(results => results.filter(s => s.districtName)), // Filter out supervisors with deleted districts
-      Supervisor.countDocuments(query),
-    ]);
+    // Use aggregation pipeline for proper filtering before pagination
+    const aggregationPipeline = [
+      { $match: query },
+      {
+        $lookup: {
+          from: "districts", // your district collection name
+          localField: "districtName",
+          foreignField: "_id",
+          as: "districtName"
+        }
+      },
+      { $unwind: "$districtName" },
+      { $match: { "districtName.isDeleted": false } },
+      { $sort: sort },
+      {
+        $facet: {
+          metadata: [{ $count: "total" }],
+          data: [{ $skip: skip }, { $limit: parseInt(limit) }]
+        }
+      }
+    ];
 
-    console.log("supervisors")
-    console.log(supervisors)
-    console.log(total)
+    const [result] = await Supervisor.aggregate(aggregationPipeline);
+    
+    const supervisors = result.data;
+    const total = result.metadata[0]?.total || 0;
 
     return res.status(200).json({
       success: true,
@@ -154,7 +221,6 @@ export const getSupervisor = async (req, res) => {
 };
 export const editSupervisor = async (req, res) => {
   try {
-    console.log("hitteds");
 
     const {
       _id,

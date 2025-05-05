@@ -31,7 +31,7 @@ import {
 
 export const CreateFarmer = () => {
   const dispatch = useAppDispatch();
-  const { loading, supervisors } = useAppSelector((state) => state.supervisor);
+  const { loading, supervisors, supervisorNames } = useAppSelector((state) => state.supervisor);
   const [supervisorOption, setSupervisorOption] = useState([]);
   const [districtId, setDistrictId] = useState();
 
@@ -40,12 +40,12 @@ export const CreateFarmer = () => {
   }, [dispatch]);
 
   useEffect(() => {
-    if (supervisors) {
-      setSupervisorOption(supervisors);
+    if (supervisorNames) {
+      setSupervisorOption(supervisorNames);
       console.log(supervisorOption);
-      console.log(supervisors);
+      console.log(supervisorNames);
     }
-  }, [supervisors]);
+  }, [supervisorNames]);
 
   const form = useForm({
     resolver: zodResolver(farmerSchema),

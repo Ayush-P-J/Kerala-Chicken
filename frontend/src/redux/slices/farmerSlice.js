@@ -101,7 +101,7 @@ const initialState = {
   currentPage: 1,
   totalPages: 1,
   searchTerm: "",
-  limit: 5,
+  limit: 20,
 };
 
 export const farmerSlice = createSlice({
@@ -170,7 +170,7 @@ export const farmerSlice = createSlice({
           (d) => d._id === deletedFarmer._id
         );
         if (index !== -1) {
-          state.farmers[index] = deletedFarmer;
+          state.farmers = state.farmers.filter(farmer => farmer._id !== deletedFarmer._id);
         }
       })
       .addCase(deleteFarmer.rejected, (state, action) => {
