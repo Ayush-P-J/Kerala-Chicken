@@ -52,7 +52,7 @@ export const getDistrictsName = createAsyncThunk(
 
 export const getDistricts = createAsyncThunk(
   "district/getDistrict",
-  async ({ search = "", page = 1, limit = 20 }, { rejectWithValue }) => {
+  async ({ search = "", page = 1, limit = 10 }, { rejectWithValue }) => {
     try {
       const response = await api.get("/getDistrict", {
         params: { search, page, limit },
@@ -64,6 +64,7 @@ export const getDistricts = createAsyncThunk(
         total: response.data.pagination.total,
         currentPage: response.data.pagination.currentPage,
         totalPages: response.data.pagination.totalPages,
+        limit: response.data.pagination.limit,
       };
     } catch (error) {
       const message =
@@ -164,6 +165,8 @@ export const districtSlice = createSlice({
         state.districts = action.payload.data;
         state.total = action.payload.total;
         state.totalPages = action.payload.totalPages;
+        state.limit = action.payload.limit
+        state.currentPage = action.payload.currentPage
       })
       .addCase(getDistricts.rejected, (state, action) => {
         state.status = "failed";

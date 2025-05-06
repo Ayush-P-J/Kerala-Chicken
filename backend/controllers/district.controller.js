@@ -70,7 +70,7 @@ export const getDistrict = async (req, res) => {
     const { 
       search = "", 
       page = 1, 
-      limit = 20,
+      limit = 10,
       sortField = "createdAt",
       sortOrder = "desc",
     } = req.query;
@@ -85,7 +85,7 @@ export const getDistrict = async (req, res) => {
       query.$or = [
         { districtName: { $regex: search, $options: "i" } },
         { districtCode: { $regex: search, $options: "i" } }
-      ];districtCode
+      ];
     }
 
     // Pagination calculations

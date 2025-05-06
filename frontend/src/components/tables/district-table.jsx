@@ -9,8 +9,14 @@ import {
 import { Button } from "../ui/button";
 import { Pencil, Trash2 } from "lucide-react";
 import React from "react";
+import { useAppDispatch, useAppSelector } from "@/redux/hooks";
+
 
 const DistrictTable = React.memo(({ districts, handleEdit, handleDelete }) => {
+  
+  const { totalPages, currentPage, limit } = useAppSelector(
+      (state) => state.district
+    );
   return (
     <Table>
       <TableHeader>
@@ -31,7 +37,7 @@ const DistrictTable = React.memo(({ districts, handleEdit, handleDelete }) => {
         ) : (
           districts.map((district, index) => (
             <TableRow key={district._id || index}>
-              <TableCell>{index + 1}</TableCell>
+              <TableCell>{ (currentPage - 1) * limit + index + 1} </TableCell>
               <TableCell>{district.districtName}</TableCell>
               <TableCell>{district.districtCode}</TableCell>
               <TableCell>

@@ -9,8 +9,12 @@ import {
 import { Button } from "../ui/button";
 import { Pencil, Trash2 } from "lucide-react";
 import React from "react";
+import { useAppSelector } from "@/redux/hooks";
 
 const FarmerTable = React.memo(({ farmers, handleEdit, handleDelete }) => {
+  const { totalPages, currentPage, limit } = useAppSelector(
+        (state) => state.farmer
+      );
   return (
     <Table>
       <TableHeader>
@@ -32,7 +36,7 @@ const FarmerTable = React.memo(({ farmers, handleEdit, handleDelete }) => {
         ) : (
           farmers.map((farmer, index) => (
             <TableRow key={farmer._id || index}>
-              <TableCell>{index + 1}</TableCell>
+              <TableCell>{ (currentPage - 1) * limit + index + 1}</TableCell>
               <TableCell>{farmer.farmerName}</TableCell>
               <TableCell>{farmer.farmerCode}</TableCell>
               <TableCell>{farmer.supervisorName?.supervisorName}</TableCell>

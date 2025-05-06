@@ -52,7 +52,7 @@ export default function AlterDistrict() {
 
   const [open, setOpen] = useState(false);
   const [selectedDistrict, setSelectedDistrict] = useState(null);
-  const [page, setPage] = useState(1);
+  const [page, setPage] = useState(currentPage);
 
   const form = useForm({
     resolver: zodResolver(districtSchema),
@@ -129,13 +129,14 @@ useEffect(() => {
         handleEdit={handleEdit}
         handleDelete={handleDelete}
       />
+      
       {/* Pagination */}
       {totalPages > 1 && (
         <div className="flex items-center justify-center gap-2 pt-4">
           <Button
             variant="outline"
             disabled={page === 1}
-            onClick={() => setPage((prev) => Math.max(1, prev - 1))}
+            onClick={() => setPage((prev) => Math.max(0, prev - 1))}
           >
             Previous
           </Button>

@@ -38,6 +38,7 @@ export const getSupervisors = createAsyncThunk(
         total: response?.data?.total,
         currentPage: response?.data?.currentPage,
         totalPages: response?.data?.totalPages,
+        limit: response?.data?.limit,
       };
     } catch (error) {
       const message = error.response?.data?.message || "Failed to get supervisors. Please try again!";
@@ -121,7 +122,7 @@ const initialState = {
   currentPage: 1,
   totalPages: 1,
   searchTerm: "",
-  limit: 5,
+  limit: 20,
 };
 
 export const supervisorSlice = createSlice({
@@ -155,6 +156,7 @@ export const supervisorSlice = createSlice({
         state.total = action.payload.total;
         state.currentPage = action.payload.currentPage;
         state.totalPages = action.payload.totalPages;
+        state.limit = action.payload.limit;
       })
       .addCase(getSupervisors.rejected, (state, action) => {
         state.status = "failed";

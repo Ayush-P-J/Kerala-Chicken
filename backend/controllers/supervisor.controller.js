@@ -212,6 +212,7 @@ export const getSupervisor = async (req, res) => {
       data: supervisors,
       total,
       currentPage: parseInt(page),
+      limit: parseInt(limit),
       totalPages: Math.ceil(total / parseInt(limit)),
     });
   } catch (error) {

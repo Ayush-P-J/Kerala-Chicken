@@ -9,9 +9,13 @@ import {
 import { Button } from "../ui/button";
 import { Pencil, Trash2 } from "lucide-react";
 import React from "react";
+import { useAppSelector } from "@/redux/hooks";
 
 const SupervisorTable = React.memo(
   ({ supervisors, handleEdit, handleDelete }) => {
+    const {  currentPage, limit } = useAppSelector(
+            (state) => state.supervisor
+          );
     return (
       <Table>
         <TableHeader>
@@ -33,7 +37,7 @@ const SupervisorTable = React.memo(
           ) : (
             supervisors.map((supervisor, index) => (
               <TableRow key={supervisor._id || index}>
-                <TableCell>{index + 1}</TableCell>
+                <TableCell>{ (currentPage - 1) * limit + index + 1}</TableCell>
                 <TableCell>{supervisor.supervisorName}</TableCell>
                 <TableCell>{supervisor.supervisorCode}</TableCell>
                 <TableCell>{supervisor.districtName?.districtName}</TableCell>
