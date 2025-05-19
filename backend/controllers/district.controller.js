@@ -31,7 +31,7 @@ export const addDistrict = async (req, res) => {
       districtName,
       districtCode,
     });
-
+    
     await district.save();
 
     return res.status(201).json({

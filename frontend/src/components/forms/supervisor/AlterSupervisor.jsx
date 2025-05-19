@@ -100,7 +100,6 @@ export default function AlterSupervisor() {
   }, []);
 
   useEffect(() => {
-    console.log("supervisors");
     dispatch(getSupervisors({ search: debouncedSearchQuery, page }));
   }, [dispatch]);
 

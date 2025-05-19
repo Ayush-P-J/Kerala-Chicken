@@ -60,13 +60,13 @@ export const addSupervisor = async (req, res) => {
 //For get the supervisors in the create farmers
 export const getSupervisorsName = async (req, res) => {
   try {
-    const supervisors = await Supervisor.find({ isDeleted: false }).select('supervisorName supervisorCode districtName')
+    const supervisors = await Supervisor.find({ isDeleted: false }).select('supervisorName supervisorCode districtName email')
     .populate(
       "districtName"
     );
 
-    console.log("supervisors")
-    console.log(supervisors)
+    console.log("supervisors email")
+    // console.log(supervisors)
 
     const validSupervisors = supervisors.filter(
       (s) => s.districtName?.isDeleted === false

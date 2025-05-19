@@ -36,7 +36,9 @@ export const CreateFarmer = () => {
   const [districtId, setDistrictId] = useState();
 
   useEffect(() => {
-    dispatch(getSupervisorsName());
+    dispatch(getSupervisorsName())
+    // console.log("supervisorNames");
+    
   }, [dispatch]);
 
   useEffect(() => {

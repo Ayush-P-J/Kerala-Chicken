@@ -114,6 +114,22 @@ const data = {
         },
       ],
     },
+    {
+      title: "Credentials",
+      url: "#",
+      icon: Contact,
+      isActive: false,
+      items: [
+        {
+          title: "Create",
+          url: "/credentials/create",
+        },
+        {
+          title: "Alter",
+          url: "/credentials/alter",
+        },
+      ],
+    },
   ],
 };
 
